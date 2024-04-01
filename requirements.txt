@@ -1,0 +1,5 @@
+SpeechRecognition
+PyAudio
+setuptools
+google-cloud-aiplatform
+google-cloud-texttospeech
