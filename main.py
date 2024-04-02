@@ -58,7 +58,7 @@ with open('prompt.txt', 'r') as file:
     prompt = file.read()
 
 vertexai.init(project=PROJECT_ID, location="us-central1")
-model = GenerativeModel(AI_MODEL)
+model = GenerativeModel("gemini-1.0-pro")
 chat = model.start_chat()
 chat.send_message(prompt)
 
