@@ -2,6 +2,7 @@ import speech_recognition as sr
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession
 from google.cloud import texttospeech
+import pyaudio
 
 GOOGLE_CLOUD_SPEECH_CREDENTIALS = "./creds/speechtotext.json"
 
@@ -11,6 +12,9 @@ vertexai.init(project="duck-414417", location="us-central1")
 model = GenerativeModel("gemini-1.0-pro")
 chat = model.start_chat()
 chat.send_message(prompt)
+
+p = pyaudio.PyAudio()
+output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True)
 
 client = texttospeech.TextToSpeechClient()
 
@@ -34,23 +38,25 @@ def llm_respond(model, input_text):
     return "".join(text_response)
     return response.text
 
-def text_to_speech(client, input_text):
+def text_to_speech(client, output, input_text):
     print("Speaking...")
     print("Output: " + input_text)
     voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+        name='en-US-Journey-F',
+        language_code="en-US", 
+        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
     )
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
+        audio_encoding=texttospeech.AudioEncoding.LINEAR16,
+        sample_rate_hertz=44100
     )
     synthesis_input = texttospeech.SynthesisInput(text=input_text)
     response = client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
-    with open("output.mp3", "wb") as out:
-        out.write(response.audio_content)
+    output.write(response.audio_content)
 
 while True:
     text = speech_to_text()
     response = llm_respond(chat, text)
-    text_to_speech(client, response)
+    text_to_speech(client, output, response)
