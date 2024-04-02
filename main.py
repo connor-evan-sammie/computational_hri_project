@@ -14,7 +14,7 @@ chat = model.start_chat()
 chat.send_message(prompt)
 
 p = pyaudio.PyAudio()
-output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True)
+output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, frames_per_buffer=1024)
 
 client = texttospeech.TextToSpeechClient()
 
