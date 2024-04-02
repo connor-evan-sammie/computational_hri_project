@@ -4,27 +4,25 @@ from vertexai.generative_models import GenerativeModel, ChatSession
 from google.cloud import texttospeech
 import pyaudio
 
+PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_SPEECH_CREDENTIALS = "./creds/speechtotext.json"
 
-prompt = """You are an AI rubber duck designed to help computer science students at the University of Michigan in their studies. Your role is to help the students learn by helping them debug their code. You will not provide a solution to their problem but rather help them to learn. You will not prompt them for their code. All user input will be provided to you using speech to text software. Respond in shorter messages (still using grammatically correct english) that can be spoken aloud using text to speech software."""
-
-vertexai.init(project="duck-414417", location="us-central1")
-model = GenerativeModel("gemini-1.0-pro")
-chat = model.start_chat()
-chat.send_message(prompt)
-
-p = pyaudio.PyAudio()
-output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, frames_per_buffer=1024)
-
-client = texttospeech.TextToSpeechClient()
+AI_MODEL = "gemini-1.0-pro"
+VOICE_MODEL = "en-US-Journey-F"
+FRAME_SIZE = 4096
 
 def speech_to_text():
     print("Recognizing speech...")
     rec = sr.Recognizer()
+    rec.energy_threshold = 300
     with sr.Microphone() as source:
         rec.adjust_for_ambient_noise(source, duration=1)
         audio = rec.listen(source)
-        text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS)
+        try:
+            text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS)
+        except:
+            print("No audio recognized!")
+            return ""
         return text
     return ""
 
@@ -42,9 +40,8 @@ def text_to_speech(client, output, input_text):
     print("Speaking...")
     print("Output: " + input_text)
     voice = texttospeech.VoiceSelectionParams(
-        name='en-US-Journey-F',
-        language_code="en-US", 
-        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+        name=VOICE_MODEL,
+        language_code="en-US"
     )
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.LINEAR16,
@@ -55,6 +52,20 @@ def text_to_speech(client, output, input_text):
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
     output.write(response.audio_content)
+
+
+with open('prompt.txt', 'r') as file:
+    prompt = file.read()
+
+vertexai.init(project=PROJECT_ID, location="us-central1")
+model = GenerativeModel(AI_MODEL)
+chat = model.start_chat()
+chat.send_message(prompt)
+
+p = pyaudio.PyAudio()
+output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, frames_per_buffer=FRAME_SIZE)
+
+client = texttospeech.TextToSpeechClient()
 
 while True:
     text = speech_to_text()
