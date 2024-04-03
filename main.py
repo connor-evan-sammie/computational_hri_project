@@ -64,14 +64,9 @@ def text_to_speech(client, output, input_text):
 with open('prompt.txt', 'r') as file:
     prompt = file.read()
 
-<<<<<<< HEAD
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 #model = GenerativeModel(AI_MODEL)
 model = CodeChatModel.from_pretrained(AI_MODEL)
-=======
-vertexai.init(project=PROJECT_ID, location="us-central1")
-model = GenerativeModel("gemini-1.0-pro")
->>>>>>> a5e68a53e05a7e2a0fbb50107f899befd8c57b35
 chat = model.start_chat()
 chat.send_message(prompt)
 
@@ -85,10 +80,6 @@ while True:
     else: text = speech_to_text()
     
     response = llm_respond(chat, text)
-<<<<<<< HEAD
 
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
-=======
-    text_to_speech(client, output, response)
->>>>>>> a5e68a53e05a7e2a0fbb50107f899befd8c57b35
