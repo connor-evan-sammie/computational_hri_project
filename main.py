@@ -77,7 +77,9 @@ client = texttospeech.TextToSpeechClient()
 
 while True:
     if args.text: text = input("Input: ")
-    else: text = speech_to_text()
+    else: 
+        text = speech_to_text()
+        text_to_speech(client, output, "quack!")
     
     response = llm_respond(chat, text)
 
