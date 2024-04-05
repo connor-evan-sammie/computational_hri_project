@@ -92,9 +92,9 @@ def main(args):
             percentile_26 = -1
         if pitch > percentile_26:
             last_percentile_26 = time.time()
-        P1_P2 = time.time() - last_percentile_26 >= 0.05
-        P3 = time.time() - last_silence >= 0.7
-        P4 = time.time() - last_backchannel >= 0.8
+        P1_P2 = time.time() - last_percentile_26 >= 0.110
+        P3 = time.time() - last_silence >= 0.700
+        P4 = time.time() - last_backchannel >= 0.800
         print(f"{P1_P2} {P3} {P4}")
         if(P1_P2 and P3 and P4):
             last_satisfied = time.time()

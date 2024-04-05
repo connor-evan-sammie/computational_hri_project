@@ -6,6 +6,7 @@ from vertexai.language_models import CodeChatModel
 from google.cloud import texttospeech
 import pyaudio
 import argparse
+from backchannel import BackchannelDetector
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -76,12 +77,14 @@ p = pyaudio.PyAudio()
 output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, frames_per_buffer=FRAME_SIZE)
 
 client = texttospeech.TextToSpeechClient()
-
+bd = BackchannelDetector()
 while True:
     if args.text: text = input("Input: ")
     else: 
         text_to_speech(client, output, "quack!")
+        bd.start()
         text = speech_to_text()
+        bd.stop()
     
     response = llm_respond(chat, text)
 
