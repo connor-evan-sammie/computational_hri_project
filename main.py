@@ -1,3 +1,4 @@
+import os
 import speech_recognition as sr
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession
@@ -7,7 +8,8 @@ import pyaudio
 import argparse
 
 PROJECT_ID = "duck-414417"
-GOOGLE_CLOUD_SPEECH_CREDENTIALS = "./creds/speechtotext.json"
+GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
 
 AI_MODEL = "codechat-bison@002"
 LOCATION = "us-central1"
@@ -29,7 +31,7 @@ def speech_to_text():
         rec.adjust_for_ambient_noise(source, duration=1)
         audio = rec.listen(source)
         try:
-            text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS)
+            text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
         except:
             print("No audio recognized!")
             return ""
@@ -78,8 +80,8 @@ client = texttospeech.TextToSpeechClient()
 while True:
     if args.text: text = input("Input: ")
     else: 
-        text = speech_to_text()
         text_to_speech(client, output, "quack!")
+        text = speech_to_text()
     
     response = llm_respond(chat, text)
 
