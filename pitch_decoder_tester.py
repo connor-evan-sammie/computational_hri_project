@@ -50,10 +50,13 @@ def main(args):
     ts = []
     ps = []
     vs = []
+    gs = []
+    p26s = []
+    p26ts = []
     last_silence = time.time()
     last_backchannel = time.time()
     last_percentile_26 = time.time()
-    while time.time() - t1 < 50:
+    while time.time() - t1 < 15:
 
         # Always listening to the microphone.
         data = mic.read(PERIOD_SIZE_IN_FRAME)
@@ -75,27 +78,35 @@ def main(args):
         # Finally print the pitch and the volume.
         #print(str(pitch) + "Hz " + str(volume))
         if pitch > 0.01:
-            ts.append(time.time())
+            ts.append(time.time()-t1)
             ps.append(pitch)
             vs.append(volume)
-        if len(ps) > 5:
-            if pitch < 0.01:
-                last_silence = time.time()
-            percentile_26 = num.percentile(ps, 0.26)
-            if pitch > percentile_26:
-                last_percentile_26 = time.time()
-            P1_P2 = time.time() - last_percentile_26 >= 0.05
-            P3 = time.time() - last_silence >= 0.7
-            P4 = time.time() - last_backchannel >= 0.8
-            if(P1_P2 and P3 and P4):
-                print("GESTURE!!!!!!!!!!!!!!!!!!!!" + str(time.time()))
-                #ps = []
-                #ts = []
-                #vs = []
-            print(f"{P1_P2} {P3} {P4}")
+        if pitch < 0.01:
+            last_silence = time.time()
+        if len(ps) > 2:
+            percentile_26 = num.percentile(ps, 26)
+            p26s.append(percentile_26)
+            p26ts.append(time.time() - t1)
+        else:
+            percentile_26 = -1
+        if pitch > percentile_26:
+            last_percentile_26 = time.time()
+        P1_P2 = time.time() - last_percentile_26 >= 0.05
+        P3 = time.time() - last_silence >= 0.7
+        P4 = time.time() - last_backchannel >= 0.8
+        print(f"{P1_P2} {P3} {P4}")
+        if(P1_P2 and P3 and P4):
+            print("GESTURE!!!!!!!!!!!!!!!!!!!!")
+            last_backchannel = time.time()
+            gs.append(time.time()-t1)
+            #ps = []
+            #ts = []
+            #vs = []
 
 
     plt.plot(ts, ps, '.')
+    plt.plot(gs, num.zeros((len(gs),)), 'r*')
+    plt.plot(p26ts, p26s, 'g--')
     plt.show()
 
 
