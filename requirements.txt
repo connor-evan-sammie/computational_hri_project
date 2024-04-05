@@ -4,3 +4,6 @@ setuptools
 google-cloud-aiplatform
 google-cloud-texttospeech
 google-cloud-speech
+matplotlib
+scipy
+numpy

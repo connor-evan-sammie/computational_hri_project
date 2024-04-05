@@ -18,7 +18,7 @@ import scipy.signal
 
 # Some constants for setting the PyAudio and the
 # Aubio.
-BUFFER_SIZE             = 2048*2
+BUFFER_SIZE             = 4096
 CHANNELS                = 1
 FORMAT                  = pyaudio.paFloat32
 METHOD                  = "default"
@@ -56,7 +56,8 @@ def main(args):
     last_silence = time.time()
     last_backchannel = time.time()
     last_percentile_26 = time.time()
-    while time.time() - t1 < 15:
+    last_satisfied = sys.float_info.max
+    while time.time() - t1 < 30:
 
         # Always listening to the microphone.
         data = mic.read(PERIOD_SIZE_IN_FRAME)
@@ -96,12 +97,16 @@ def main(args):
         P4 = time.time() - last_backchannel >= 0.8
         print(f"{P1_P2} {P3} {P4}")
         if(P1_P2 and P3 and P4):
-            print("GESTURE!!!!!!!!!!!!!!!!!!!!")
-            last_backchannel = time.time()
-            gs.append(time.time()-t1)
+            last_satisfied = time.time()
             #ps = []
             #ts = []
             #vs = []
+        P5 = time.time() - last_satisfied - 0.7 > 0
+        if P5:
+            print("GESTURE!!!!!!!!!!!!!!!!!!!!")
+            last_satisfied = sys.float_info.max
+            last_backchannel = time.time()
+            gs.append(time.time()-t1)
 
 
     plt.plot(ts, ps, '.')
