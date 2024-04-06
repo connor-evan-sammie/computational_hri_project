@@ -66,3 +66,9 @@ class BackchannelDetector:
     
     def stop(self):
         self.running = False
+
+if __name__ == "__main__":
+    bd = BackchannelDetector()
+    bd.start(lambda: print("Gesture!"))
+    time.sleep(10)
+    bd.stop()
