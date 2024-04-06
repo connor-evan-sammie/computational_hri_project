@@ -26,11 +26,11 @@ class BackchannelDetector:
         self.running = False
 
     def start(self, callback = lambda : None):
-        t = threading.Thread(target = self._run, args=(callback,))
+        t = threading.Thread(target = self.__run, args=(callback,))
         t.setDaemon(True)
         t.start()
 
-    def _run(self, callback):
+    def __run(self, callback):
         ps = []
         last_silence = time.time()
         last_backchannel = time.time()
