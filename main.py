@@ -16,7 +16,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
 
 AI_MODEL = "codechat-bison@002"
 LOCATION = "us-central1"
-VOICE_MODEL = "en-US-Casual-K" #"en-US-Journey-F"
+VOICE_MODEL = "en-US-Journey-F"
 FRAME_SIZE = 4096
 
 parser = argparse.ArgumentParser()
