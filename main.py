@@ -16,7 +16,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
 
 AI_MODEL = "codechat-bison@002"
 LOCATION = "us-central1"
-VOICE_MODEL = "en-US-Journey-F"
+VOICE_MODEL = "en-US-Casual-K" #"en-US-Journey-F"
 FRAME_SIZE = 4096
 
 parser = argparse.ArgumentParser()
@@ -88,11 +88,11 @@ def backchannel_callback():
     i = random.randint(0, len(gestures)-1)
     gh.addToQueue(gestures[i])
 
+text_to_speech(client, output, "quack!")
 gh.start()
 while True:
     if args.text: text = input("Input: ")
     else:
-        text_to_speech(client, output, "quack!")
         bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
