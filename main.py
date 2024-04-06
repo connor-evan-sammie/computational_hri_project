@@ -96,8 +96,7 @@ while True:
         bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
-    
+    text_to_speech(client, output, "hmmmm....")
     response = llm_respond(chat, text)
-
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
