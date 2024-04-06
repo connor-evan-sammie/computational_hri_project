@@ -82,7 +82,7 @@ while True:
     if args.text: text = input("Input: ")
     else:
         text_to_speech(client, output, "quack!")
-        bd.start(lambda: None)
+        bd.start()
         text = speech_to_text()
         bd.stop()
     
