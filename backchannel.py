@@ -26,10 +26,10 @@ class BackchannelDetector:
         self.running = False
 
     def start(self, callback = lambda : None):
-        t = threading.Thread(target = self.__run, args=(callback,))
-        t.setDaemon(True)
+        self.t = threading.Thread(target = self.__run, args=(callback,))
+        self.t.setDaemon(True)
         self.running = True
-        t.start()
+        self.t.start()
 
     def __run(self, callback):
         ps = []
@@ -66,9 +66,13 @@ class BackchannelDetector:
     
     def stop(self):
         self.running = False
+        self.t.join()
+    
+    def __del__(self):
+        self.stop()
 
 if __name__ == "__main__":
     bd = BackchannelDetector()
     bd.start(lambda: print("Gesture!"))
-    time.sleep(10)
+    time.sleep(5)
     bd.stop()
