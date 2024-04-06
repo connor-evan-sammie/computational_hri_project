@@ -28,6 +28,7 @@ class BackchannelDetector:
     def start(self, callback = lambda : None):
         t = threading.Thread(target = self.__run, args=(callback,))
         t.setDaemon(True)
+        self.running = True
         t.start()
 
     def __run(self, callback):
@@ -36,7 +37,6 @@ class BackchannelDetector:
         last_backchannel = time.time()
         last_percentile_26 = time.time()
         last_satisfied = sys.float_info.max
-        self.running = True
         while self.running:
             data = self.mic.read(self.PERIOD_SIZE_IN_FRAME)
             samples = np.fromstring(data, dtype=aubio.float_type)
