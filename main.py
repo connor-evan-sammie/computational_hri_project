@@ -80,9 +80,9 @@ client = texttospeech.TextToSpeechClient()
 bd = BackchannelDetector()
 while True:
     if args.text: text = input("Input: ")
-    else: 
+    else:
         text_to_speech(client, output, "quack!")
-        bd.start()
+        bd.start(lambda: None)
         text = speech_to_text()
         bd.stop()
     

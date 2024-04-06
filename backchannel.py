@@ -25,7 +25,7 @@ class BackchannelDetector:
         self.b, self.a = scipy.signal.butter(3, 1000, 'lowpass', fs=SAMPLE_RATE)
         self.running = False
 
-    def start(self, callback = lambda : print("Gesture!")):
+    def start(self, callback = lambda : None):
         t = threading.Thread(target = self._run, args=(callback,))
         t.setDaemon(True)
         t.start()
