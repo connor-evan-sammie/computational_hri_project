@@ -9,6 +9,7 @@ import argparse
 from backchannel import BackchannelDetector
 from gesturehandler import GestureHandler
 import random
+import threading
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -96,7 +97,9 @@ while True:
         bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
-    text_to_speech(client, output, "hmmmm....")
+    hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
+    hmmm_thread.setDaemon(True)
+    hmmm_thread.start()
     response = llm_respond(chat, text)
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
