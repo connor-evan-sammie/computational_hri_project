@@ -13,6 +13,9 @@ class GestureHandler:
 
     def addToQueue(self, action):
         self.action_queue.append(action)
+    
+    def clearQueue(self):
+        self.action_queue = []
 
     def start(self):
         self.t = threading.Thread(target = self.__run)
