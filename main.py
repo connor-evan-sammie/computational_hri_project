@@ -7,6 +7,8 @@ from google.cloud import texttospeech
 import pyaudio
 import argparse
 from backchannel import BackchannelDetector
+from gesturehandler import GestureHandler
+import random
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -78,11 +80,20 @@ output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, fra
 
 client = texttospeech.TextToSpeechClient()
 bd = BackchannelDetector()
+gh = GestureHandler()
+
+def backchannel_callback():
+    print("gesture!")
+    gestures = gh.getGestures()
+    i = random.randint(0, len(gestures)-1)
+    gh.addToQueue(gestures[i])
+
+gh.start()
 while True:
     if args.text: text = input("Input: ")
     else:
         text_to_speech(client, output, "quack!")
-        bd.start()
+        bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
     
