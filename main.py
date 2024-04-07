@@ -32,7 +32,7 @@ def speech_to_text():
     rec = sr.Recognizer()
     rec.energy_threshold = 300
     with sr.Microphone() as source:
-        rec.adjust_for_ambient_noise(source, duration=1)
+        rec.adjust_for_ambient_noise(source, duration=0.5)
         audio = rec.listen(source)
         try:
             text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
@@ -102,8 +102,9 @@ while True:
         text = speech_to_text()
         bd.stop()
     hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
-    hmmm_thread.setDaemon(True)
+    hmmm_thread.daemon = True
     hmmm_thread.start()
     response = llm_respond(chat, text)
+    hmmm_thread.join()
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
