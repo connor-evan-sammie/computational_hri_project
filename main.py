@@ -89,7 +89,11 @@ def backchannel_callback():
     i = random.randint(0, len(gestures)-1)
     gh.addToQueue(gestures[i])
 
-text_to_speech(client, output, "quack!")
+#text_to_speech(client, output, "quack!")
+with open("oxp.wav", "rb") as file:
+    file_content = file.read()
+    output.write(file_content)
+
 gh.start()
 while True:
     if args.text: text = input("Input: ")

@@ -30,8 +30,8 @@ class Embodiment:
         self.rightWing.write(180 - (self.rightWingDegrees+25))
 
     def setHeadPitch(self, degrees):
-        if not (-5 <= degrees <= 25):
-            print("Invalid angle! Range limited to [-5, 25]")
+        if not (-10 <= degrees <= 25):
+            print("Invalid angle! Range limited to [-10, 25]")
             return
         self.headPitchDegrees = degrees
         self.headPitch.write(180 - self.headPitchDegrees - 90)
