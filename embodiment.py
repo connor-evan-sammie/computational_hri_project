@@ -1,12 +1,12 @@
-from piservo import Servo
+from gpiozero import AngularServo as Servo
 import time
 
 class Embodiment:
     def __init__(self):
-        self.leftWing = Servo(19)
-        self.rightWing = Servo(13)
-        self.headPitch = Servo(12)
-        self.headYaw = Servo(18)
+        self.leftWing = Servo(14, min_angle=-180, max_angle=180)
+        self.rightWing = Servo(15, min_angle=-180, max_angle=180)
+        self.headPitch = Servo(2, min_angle=-180, max_angle=180)
+        self.headYaw = Servo(3, min_angle=-180, max_angle=180)
         self.toNeutral
     
     def toNeutral(self):
@@ -20,28 +20,28 @@ class Embodiment:
             print("Invalid angle! Range limited to [-25, 155]")
             return
         self.leftWingDegrees = degrees
-        self.leftWing.write(self.leftWingDegrees+25)
+        self.leftWing.angle = (self.leftWingDegrees+25)
 
     def setRightWing(self, degrees): # down to -25, up to 155
         if not (-25 <= degrees <= 155):
             print("Invalid angle! Range limited to [-25, 155]")
             return
         self.rightWingDegrees = degrees
-        self.rightWing.write(180 - (self.rightWingDegrees+25))
+        self.rightWing.angle = (180 - (self.rightWingDegrees+25)) 
 
     def setHeadPitch(self, degrees):
         if not (-10 <= degrees <= 25):
             print("Invalid angle! Range limited to [-10, 25]")
             return
         self.headPitchDegrees = degrees
-        self.headPitch.write(180 - self.headPitchDegrees - 90)
+        self.headPitch.angle = (180 - self.headPitchDegrees - 90)
 
     def setHeadYaw(self, degrees):
         if not (-90 <= degrees <= 90):
             print("Invalid angle! Range limited to [-90, 90]")
             return
         self.headYawDegrees = degrees
-        self.headYaw.write(180 - self.headYawDegrees - 90)
+        self.headYaw.angle = (180 - self.headYawDegrees - 90)
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees
