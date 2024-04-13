@@ -7,9 +7,9 @@ DEBUG = True
 class Embodiment:
     def __init__(self):
         os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
-        self.leftWing = Servo(14, min_angle=-90, max_angle=90, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.rightWing = Servo(15, min_angle=90, max_angle=-90, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.headPitch = Servo(2, min_angle = -90, max_angle = 90, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.leftWing = Servo(14, min_angle=-30, max_angle=150, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.rightWing = Servo(15, min_angle=135, max_angle=-45, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.headPitch = Servo(2, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.toNeutral()
     
@@ -36,9 +36,9 @@ class Embodiment:
         #self.rightWing.angle = (180 - (self.rightWingDegrees+25)) 
 
     def setHeadPitch(self, degrees):
-        #if not (-10 <= degrees <= 25) and not DEBUG:
-        #    print("Invalid angle! Range limited to [-10, 25]")
-        #    return
+        if not (-30 <= degrees <= 40) and not DEBUG:
+            print("Invalid angle! Range limited to [-30, 40]")
+            return
         self.headPitchDegrees = degrees
         self.headPitch.angle = (self.headPitchDegrees)
 
@@ -53,6 +53,8 @@ class Embodiment:
     def getRightWing(self): return self.rightWingDegrees
     def getHeadPitch(self): return self.headPitchDegrees
     def getHeadYaw(self): return self.headYawDegrees
+
+    def getPose(self): return [self.getLeftWing(), self.getRightWing(), self.getHeadYaw(), self.getHeadPitch()]
 
 if __name__ == "__main__":
     duck = Embodiment()
