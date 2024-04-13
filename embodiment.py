@@ -1,12 +1,16 @@
 from gpiozero import AngularServo as Servo
+import os
 import time
+
+DEBUG = True
 
 class Embodiment:
     def __init__(self):
+        os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
         self.leftWing = Servo(14, min_angle=-180, max_angle=180)
         self.rightWing = Servo(15, min_angle=-180, max_angle=180)
-        self.headPitch = Servo(2, min_angle=-180, max_angle=180)
-        self.headYaw = Servo(3, min_angle=-180, max_angle=180)
+        self.headPitch = Servo(2)
+        self.headYaw = Servo(3)
         self.toNeutral
     
     def toNeutral(self):
@@ -16,32 +20,32 @@ class Embodiment:
         self.setHeadYaw(0)
 
     def setLeftWing(self, degrees):
-        if not (-25 <= degrees <= 155):
+        if not (-25 <= degrees <= 155) and not DEBUG:
             print("Invalid angle! Range limited to [-25, 155]")
             return
         self.leftWingDegrees = degrees
         self.leftWing.angle = (self.leftWingDegrees+25)
 
     def setRightWing(self, degrees): # down to -25, up to 155
-        if not (-25 <= degrees <= 155):
+        if not (-25 <= degrees <= 155) and not DEBUG:
             print("Invalid angle! Range limited to [-25, 155]")
             return
         self.rightWingDegrees = degrees
         self.rightWing.angle = (180 - (self.rightWingDegrees+25)) 
 
     def setHeadPitch(self, degrees):
-        if not (-10 <= degrees <= 25):
+        if not (-10 <= degrees <= 25) and not DEBUG:
             print("Invalid angle! Range limited to [-10, 25]")
             return
         self.headPitchDegrees = degrees
-        self.headPitch.angle = (180 - self.headPitchDegrees - 90)
+        self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
-        if not (-90 <= degrees <= 90):
+        if not (-90 <= degrees <= 90) and not DEBUG:
             print("Invalid angle! Range limited to [-90, 90]")
             return
         self.headYawDegrees = degrees
-        self.headYaw.angle = (180 - self.headYawDegrees - 90)
+        self.headYaw.angle = (self.headYawDegrees)
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees
