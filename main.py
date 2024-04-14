@@ -26,6 +26,7 @@ AUDIO_RATE = 44100
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.add_argument('-t', '--text', action='store_true')
+parser.add_argument('-i', '--intro', action='store_true')
 
 args = parser.parse_args()
 
@@ -104,8 +105,16 @@ def backchannel_callback():
     gh.addToQueue(gestures[i])
 
 text_to_speech(client, output, "quack")
-
 gh.start()
+
+with open('fillers.txt') as f:
+    fillers = f.read().splitlines()
+
+if args.intro:
+    intro = llm_respond(chat, "Introduce yourself!")
+    speak_length = text_to_speech(client, output, intro)
+    time.sleep(speak_length)
+
 while True:
     if args.text: text = input("Input: ")
     else:
@@ -113,20 +122,24 @@ while True:
         text = speech_to_text()
         bd.stop()
         gh.clearQueue()
-        if text == "":
-            continue
     
-    hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
+    filler = fillers[random.randrange(0, len(fillers) - 1)]
+    print(filler)
+
+    hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, filler,))
     hmmm_thread.daemon = True
     hmmm_thread.start()
+    start_time = time.time()
     try: 
         response = llm_respond(chat, text)
     except:
         continue;
     hmmm_thread.join()
+
+    if(time.time() - start_time < 2):
+        time.sleep(random.uniform(0.4, 1.6))
+
     if args.text: print("Output: " + response)
     else: 
         speak_length = text_to_speech(client, output, response)
         time.sleep(speak_length)
-
-#put the make it so the uh AI part of it doesn't error out when it gets an empty input
