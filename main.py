@@ -125,6 +125,8 @@ while True:
         continue;
     hmmm_thread.join()
     if args.text: print("Output: " + response)
-    else: text_to_speech(client, output, response)
+    else: 
+        speak_length = text_to_speech(client, output, response)
+        time.sleep(speak_length)
 
 #put the make it so the uh AI part of it doesn't error out when it gets an empty input
