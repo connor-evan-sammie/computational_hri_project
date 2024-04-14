@@ -19,6 +19,9 @@ class GestureHandler:
     def clearQueue(self):
         self.action_queue = []
 
+    def isQueueEmpty(self):
+        return len(self.action_queue) == 0
+
     def start(self):
         self.t = threading.Thread(target = self.__run)
         self.t.daemon = True
@@ -45,15 +48,18 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    gh.addToQueue("idle")
-    time.sleep(10)
+    for i in range(30):
+        gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
+    #gh.addToQueue("idle")
     gh.addToQueue("neutral")
-    time.sleep(0.5)
+    while not gh.isQueueEmpty():
+        time.sleep(0.05)
     gh.stop()
+
+#2p 3y 14l 15r

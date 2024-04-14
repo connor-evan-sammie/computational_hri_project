@@ -10,6 +10,7 @@ from backchannel import BackchannelDetector
 from gesturehandler import GestureHandler
 import random
 import threading
+import time
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -90,9 +91,9 @@ def backchannel_callback():
     gh.addToQueue(gestures[i])
 
 #text_to_speech(client, output, "quack")
-#with open("oxp.wav", "rb") as file:
-#    file_content = file.read()
-#    output.write(file_content)
+with open("oxp.wav", "rb") as file:
+    file_content = file.read()
+    output.write(file_content)
 
 gh.start()
 while True:

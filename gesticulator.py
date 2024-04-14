@@ -11,7 +11,7 @@ talk1_coords = np.array([150, 150, 0, 10])
 talk2_coords = np.array([130, 130, 0, -10])
 talk3_coords = np.array([150, 130, 0, 10])
 talk4_coords = np.array([130, 150, 0, -10])
-idle_coords = np.array([[-10, 10], [-10, 10], [-10, 10], [0, 10]])
+idle_coords = np.array([[-30, 149], [-30, 149], [-45, 45], [-30, 40]])
 
 T = 0.5
 N = 20
