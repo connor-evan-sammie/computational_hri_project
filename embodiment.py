@@ -1,22 +1,20 @@
-from gpiozero import AngularServo as Servo
 import os
-import time
 import platform
 
-DEBUG = True
-
 class Servo():
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *__, **_):
         pass
 
-if not (platform.system() == "Windows"):
+if platform.system() == "Linux":
     from gpiozero import AngularServo as Servo
+else:
+    print("Non-RPi machine detected! Disabling servo capabilities.")
 
 class Embodiment:
     def __init__(self):
         os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
-        self.leftWing = Servo(14, min_angle=-30, max_angle=150, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.rightWing = Servo(15, min_angle=150, max_angle=-30, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
         
@@ -29,32 +27,21 @@ class Embodiment:
         self.setHeadYaw(0)
 
     def setLeftWing(self, degrees):
-        #if not (-25 <= degrees <= 155) and not DEBUG:
-        #    print("Invalid angle! Range limited to [-25, 155]")
-        #    return
         self.leftWingDegrees = degrees
-        #self.leftWing.angle = (self.leftWingDegrees+25)
         self.leftWing.angle = (self.leftWingDegrees)
 
-    def setRightWing(self, degrees): # down to -25, up to 155
-        #if not (-25 <= degrees <= 155) and not DEBUG:
-        #    print("Invalid angle! Range limited to [-25, 155]")
-        #    return
+    def setRightWing(self, degrees):
         self.rightWingDegrees = degrees
         self.rightWing.angle = (self.rightWingDegrees) 
-        #self.rightWing.angle = (180 - (self.rightWingDegrees+25)) 
 
     def setHeadPitch(self, degrees):
-        if not (-30 <= degrees <= 40) and not DEBUG:
+        if not (-30 <= degrees <= 40):
             print("Invalid angle! Range limited to [-30, 40]")
             return
         self.headPitchDegrees = degrees
         self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
-        #if not (-90 <= degrees <= 90) and not DEBUG:
-        #    print("Invalid angle! Range limited to [-90, 90]")
-        #    return
         self.headYawDegrees = degrees
         self.headYaw.angle = (self.headYawDegrees)
 
@@ -73,7 +60,6 @@ class Embodiment:
 
 if __name__ == "__main__":
     duck = Embodiment()
-    #duck.toNeutral()
     cmd = ""
     while cmd != "q":
         if cmd != "":

@@ -5,14 +5,16 @@ import platform
 if platform.system() == "Windows":
     from matplotlib import pyplot as plt
 
+#Left, right, yaw, pitch
 neutral_coords = np.array([0, 0, 0, 0])
 talk1_coords = np.array([150, 150, 0, 10])
 talk2_coords = np.array([130, 130, 0, -10])
-
 talk3_coords = np.array([150, 130, 0, 10])
 talk4_coords = np.array([130, 150, 0, -10])
+idle_coords = np.array([[-10, 10], [-10, 10], [-10, 10], [0, 10]])
+
 T = 0.5
-N = 100
+N = 20
 
 #dt = 0.04
 dt = T/N
@@ -24,8 +26,16 @@ def spline(p1, pf, N, type="cubic"):
 def toSimplePose(body, pose, N, T):
     dt = T/N
     curr_pose = body.getPose()
-    points = spline(curr_pose, pose, N)
+    if len(pose.shape) > 1:
+        new_pose = np.zeros((4,))
+        for i in range(4):
+            new_pose[i] = np.random.randint(pose[i, 0], pose[i, 1]+1, None)
+        print(f"Random coords: {new_pose}")
+    else:
+        new_pose = pose
+    points = spline(curr_pose, new_pose, N)
     for i in range(points.shape[0]):
+        #print(points[i, :])
         body.setPose(points[i, :])
         time.sleep(dt)
 
@@ -44,6 +54,10 @@ def talk3(body, N=N, T=T):
 def talk4(body, N=N, T=T):
     print("Going to talk 4...", flush=True)
     toSimplePose(body, talk4_coords, N, T)
+
+def idle(body, N=N, T=T):
+    print("Going to random idle...", flush=True)
+    toSimplePose(body, idle_coords, N, T)
 
 def neutral(body):
     print("Going to neutral...")
