@@ -1,7 +1,9 @@
 import time
 import numpy as np
-from scipy.interpolate import CubicSpline
 import scipy
+import platform
+if platform.system() == "Windows":
+    from matplotlib import pyplot as plt
 
 neutral_coords = np.array([0, 0, 0, 0])
 talk1_coords = np.array([150, 150, 0, 10])
@@ -15,75 +17,33 @@ N = 100
 #dt = 0.04
 dt = T/N
 def spline(p1, pf, N, type="cubic"):
-    sp = scipy.interpolate.interp1d(np.array([-(N-1), 0, N-1, 2*(N-1)]), np.vstack((pf, p1, pf, p1)).T, kind=type, axis=1)
+    sp = scipy.interpolate.interp1d(np.array([-(N/2), 0, N-1, 3*N/2]), np.vstack((pf, p1, pf, p1)).T, kind=type, axis=1)
     points = sp(np.arange(1, N)).T
-    print(points)
-    #points = np.linspace(p1, pf, N, axis=0)[1:, :]
     return points
 
-def talk1(body):
+def toSimplePose(body, pose, N, T):
+    dt = T/N
     curr_pose = body.getPose()
-    points = spline(curr_pose, talk3_coords, N)
+    points = spline(curr_pose, pose, N)
+    for i in range(points.shape[0]):
+        body.setPose(points[i, :])
+        time.sleep(dt)
+
+def talk1(body, N=N, T=T):
     print("going to talk 1...")
-    for i in range(points.shape[0]):
-        #print(points[i, :])
-        body.setPose(points[i, :])
-        time.sleep(dt)
+    toSimplePose(body, talk1_coords, N, T)
 
-def talk2(body):
-    curr_pose = body.getPose()
-    points = spline(curr_pose, talk4_coords, N)
+def talk2(body, N=N, T=T):
     print("going to talk 2...")
-    for i in range(points.shape[0]):
-        #print(points[i, :])
-        body.setPose(points[i, :])
-        time.sleep(dt)
+    toSimplePose(body, talk2_coords, N, T)
 
+def talk3(body, N=N, T=T):
+    print("going to talk 3...")
+    toSimplePose(body, talk3_coords, N, T)
 
+def talk4(body, N=N, T=T):
+    print("going to talk 4...")
+    toSimplePose(body, talk4_coords, N, T)
 
 def neutral(body):
     body.setPose(neutral_coords)
-
-"""
-def who():
-    phrase = "the Who(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-
-def what():
-    phrase = "the What(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-
-def when():
-    phrase = "the When(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-
-def where():
-    phrase = "the Where(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-
-def why():
-    phrase = "the Why(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-
-def how():
-    phrase = "the How(tm) gesture"
-    for c in phrase:
-        print(c, end="", flush="True")
-        time.sleep(0.1)
-    print()
-"""

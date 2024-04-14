@@ -1,8 +1,16 @@
 from gpiozero import AngularServo as Servo
 import os
 import time
+import platform
 
 DEBUG = True
+
+class Servo():
+    def __init__(self, *args, **kwargs):
+        pass
+
+if not (platform.system() == "Windows"):
+    from gpiozero import AngularServo as Servo
 
 class Embodiment:
     def __init__(self):
@@ -11,6 +19,7 @@ class Embodiment:
         self.rightWing = Servo(15, min_angle=150, max_angle=-30, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        
         self.toNeutral()
     
     def toNeutral(self):

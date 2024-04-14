@@ -1,14 +1,14 @@
 import threading
 import time
 import gesticulator
-from embodiment import Embodiment
+from embodiment import Embodiment as body
 
 class GestureHandler:
 
     def __init__(self):
         self.action_queue = []
         self.running = False
-        self.body = Embodiment()
+        self.body = body()
 
     def getGestures(self):
         return ["neutral", "talk1", "talk2"]
