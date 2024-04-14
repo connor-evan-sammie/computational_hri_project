@@ -8,7 +8,7 @@ class Embodiment:
     def __init__(self):
         os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
         self.leftWing = Servo(14, min_angle=-30, max_angle=150, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.rightWing = Servo(15, min_angle=135, max_angle=-45, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.rightWing = Servo(15, min_angle=150, max_angle=-30, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headPitch = Servo(2, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.toNeutral()
@@ -48,6 +48,12 @@ class Embodiment:
         #    return
         self.headYawDegrees = degrees
         self.headYaw.angle = (self.headYawDegrees)
+
+    def setPose(self, pose):
+        self.setLeftWing(pose[0])
+        self.setRightWing(pose[1])
+        self.setHeadYaw(pose[2])
+        self.setHeadPitch(pose[3])
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees

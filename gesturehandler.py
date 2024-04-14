@@ -9,7 +9,7 @@ class GestureHandler:
         self.running = False
 
     def getGestures(self):
-        return ["who", "what", "when", "where", "why", "how"]
+        return ["talk1", "talk2"]
 
     def addToQueue(self, action):
         self.action_queue.append(action)
@@ -43,6 +43,16 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    gh.addToQueue("what")
+    gh.addToQueue("talk1")
+    time.sleep(1)
+    gh.addToQueue("talk2")
+    time.sleep(1)
+    gh.addToQueue("talk1")
+    time.sleep(1)
+    gh.addToQueue("talk2")
+    time.sleep(1)
+    gh.addToQueue("talk1")
+    time.sleep(1)
+    gh.addToQueue("talk2")
     time.sleep(1)
     gh.stop()
