@@ -84,7 +84,7 @@ bd = BackchannelDetector()
 gh = GestureHandler()
 
 def backchannel_callback():
-    print("gesture!")
+    print("Gesture!")
     gestures = gh.getGestures()
     i = random.randint(0, len(gestures)-1)
     gh.addToQueue(gestures[i])
@@ -101,7 +101,6 @@ while True:
         bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
-        gh.clearQueue()
     hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
     hmmm_thread.daemon = True
     hmmm_thread.start()

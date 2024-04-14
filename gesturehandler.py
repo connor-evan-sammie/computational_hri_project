@@ -11,7 +11,7 @@ class GestureHandler:
         self.body = body()
 
     def getGestures(self):
-        return ["neutral", "talk1", "talk2"]
+        return ["neutral", "talk1", "talk2", "talk3", "talk4"]
 
     def addToQueue(self, action):
         self.action_queue.append(action)
@@ -27,7 +27,6 @@ class GestureHandler:
 
     def __run(self):
         while self.running:
-            #print("hi!")
             if len(self.action_queue) == 0:
                 time.sleep(0.01)
                 continue

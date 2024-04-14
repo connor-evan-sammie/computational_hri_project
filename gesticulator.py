@@ -30,20 +30,21 @@ def toSimplePose(body, pose, N, T):
         time.sleep(dt)
 
 def talk1(body, N=N, T=T):
-    print("going to talk 1...")
+    print("Going to talk 1...", flush=True)
     toSimplePose(body, talk1_coords, N, T)
 
 def talk2(body, N=N, T=T):
-    print("going to talk 2...")
+    print("Going to talk 2...", flush=True)
     toSimplePose(body, talk2_coords, N, T)
 
 def talk3(body, N=N, T=T):
-    print("going to talk 3...")
+    print("Going to talk 3...", flush=True)
     toSimplePose(body, talk3_coords, N, T)
 
 def talk4(body, N=N, T=T):
-    print("going to talk 4...")
+    print("Going to talk 4...", flush=True)
     toSimplePose(body, talk4_coords, N, T)
 
 def neutral(body):
+    print("Going to neutral...")
     body.setPose(neutral_coords)
