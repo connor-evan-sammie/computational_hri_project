@@ -27,21 +27,34 @@ class Embodiment:
         self.setHeadYaw(0)
 
     def setLeftWing(self, degrees):
+        if degrees > 150:
+            degrees = 150
+        if degrees < -30:
+            degrees = -30
         self.leftWingDegrees = degrees
         self.leftWing.angle = (self.leftWingDegrees)
 
     def setRightWing(self, degrees):
+        if degrees > 150:
+            degrees = 150
+        if degrees < -30:
+            degrees = -30
         self.rightWingDegrees = degrees
         self.rightWing.angle = (self.rightWingDegrees) 
 
     def setHeadPitch(self, degrees):
-        if not (-30 <= degrees <= 40):
-            print("Invalid angle! Range limited to [-30, 40]")
-            return
+        if degrees > 40:
+            degrees = 40
+        if degrees < -30:
+            degrees = -30
         self.headPitchDegrees = degrees
         self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
+        if degrees > 90:
+            degrees = 90
+        if degrees < -90:
+            degrees = -90
         self.headYawDegrees = degrees
         self.headYaw.angle = (self.headYawDegrees)
 

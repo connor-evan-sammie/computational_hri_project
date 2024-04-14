@@ -91,9 +91,9 @@ def backchannel_callback():
     gh.addToQueue(gestures[i])
 
 #text_to_speech(client, output, "quack")
-with open("oxp.wav", "rb") as file:
-    file_content = file.read()
-    output.write(file_content)
+#with open("oxp.wav", "rb") as file:
+#    file_content = file.read()
+#    output.write(file_content)
 
 gh.start()
 while True:
@@ -103,6 +103,8 @@ while True:
         text = speech_to_text()
         bd.stop()
         gh.clearQueue()
+        if text == "":
+            continue
     
     hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
     hmmm_thread.daemon = True
@@ -111,3 +113,5 @@ while True:
     hmmm_thread.join()
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
+
+#put the make it so the uh AI part of it doesn't error out when it gets an empty input
