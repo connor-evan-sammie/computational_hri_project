@@ -9,9 +9,11 @@ talk2_coords = np.array([130, 130, 0, -10])
 
 talk3_coords = np.array([150, 130, 0, 10])
 talk4_coords = np.array([130, 150, 0, -10])
-N = 15
-dt = 0.04
+T = 0.5
+N = 100
 
+#dt = 0.04
+dt = T/N
 def spline(p1, pf, N, type="cubic"):
     sp = scipy.interpolate.interp1d(np.array([-(N-1), 0, N-1, 2*(N-1)]), np.vstack((pf, p1, pf, p1)).T, kind=type, axis=1)
     points = sp(np.arange(1, N)).T
