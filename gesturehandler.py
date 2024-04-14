@@ -11,7 +11,7 @@ class GestureHandler:
         self.body = body()
 
     def getBackchannelGestures(self):
-        return ["idle"]
+        return ["idle", "idle", "idle", "idle", "idle", "talk1", "talk2", "talk3", "talk4"]
 
     def addToQueue(self, action):
         self.action_queue.append(action)
