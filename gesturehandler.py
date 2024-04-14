@@ -1,15 +1,17 @@
 import threading
 import time
 import gesticulator
+from embodiment import Embodiment
 
 class GestureHandler:
 
     def __init__(self):
         self.action_queue = []
         self.running = False
+        self.body = Embodiment()
 
     def getGestures(self):
-        return ["talk1", "talk2"]
+        return ["neutral", "talk1", "talk2"]
 
     def addToQueue(self, action):
         self.action_queue.append(action)
@@ -31,7 +33,7 @@ class GestureHandler:
                 continue
             action_func = getattr(gesticulator, self.action_queue[0])
             self.action_queue.pop(0)
-            action_thread = threading.Thread(target=action_func)
+            action_thread = threading.Thread(target=action_func, args=(self.body,))
             action_thread.setDaemon(True)
             action_thread.start()
             action_thread.join()
@@ -54,5 +56,7 @@ if __name__ == "__main__":
     gh.addToQueue("talk1")
     time.sleep(1)
     gh.addToQueue("talk2")
+    time.sleep(1)
+    gh.addToQueue("neutral")
     time.sleep(1)
     gh.stop()

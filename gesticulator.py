@@ -1,32 +1,42 @@
 import time
 import numpy as np
 
-talk_1 = [150, 150, 0, 10]
-talk_2 = [130, 130, 0, -10]
+neutral_coords = np.array([0, 0, 0, 0])
+talk1_coords = np.array([150, 150, 0, 10])
+talk2_coords = np.array([130, 130, 0, -10])
 N = 5
 dt = 0.1
 
 def spline(p1, pf, N):
-    left = np.linspace(p1[0], pf[0], N)[None, 1:]
-    right = np.linspace(p1[1], pf[1], N)[None, 1:]
-    yaw = np.linspace(p1[2], pf[2], N)[None, 1:]
-    pitch = np.linspace(p1[3], pf[3], N)[None, 1:]
+    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #print(pf)
+    left = np.linspace(p1[0], pf[0], N)[1:, None]
+    right = np.linspace(p1[1], pf[1], N)[1:, None]
+    yaw = np.linspace(p1[2], pf[2], N)[1:, None]
+    pitch = np.linspace(p1[3], pf[3], N)[1:, None]
     points = np.hstack((left, right, yaw, pitch))
     return points
 
-def talk_1(body):
+def talk1(body):
     curr_pose = body.getPose()
-    points = spline(curr_pose, talk_1, N)
+    points = spline(curr_pose, talk1_coords, N)
+    print("going to talk 1...")
     for i in range(points.shape[0]):
+        #print(points[i, :])
         body.setPose(points[i, :])
         time.sleep(dt)
 
-def talk_2(body):
+def talk2(body):
     curr_pose = body.getPose()
-    points = spline(curr_pose, talk_2, N)
+    points = spline(curr_pose, talk2_coords, N)
+    print("going to talk 2...")
     for i in range(points.shape[0]):
         body.setPose(points[i, :])
+        print(points[i, :])
         time.sleep(dt)
+
+def neutral(body):
+    body.setPose(neutral)
 
 """
 def who():
