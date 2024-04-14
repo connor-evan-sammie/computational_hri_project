@@ -11,7 +11,7 @@ class GestureHandler:
         self.body = body()
 
     def getBackchannelGestures(self):
-        return ["idle", "idle", "idle", "idle", "idle", "talk1", "talk2", "talk3", "talk4"]
+        return ["rand", "rand", "rand", "rand", "rand", "talk1", "talk2", "talk3", "talk4"]
 
     def addToQueue(self, action):
         self.action_queue.append(action)
@@ -48,15 +48,14 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    for i in range(30):
-        gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
-    #gh.addToQueue("idle")
+    #for i in range(10):
+    #    gh.addToQueue("thinking")
+    #gh.addToQueue("thinking")
+    #time.sleep(2)
+    #gh.addToQueue("ahah1")
+    #time.sleep(2)
+    for i in range(60):
+        gh.addToQueue("rand")
     gh.addToQueue("neutral")
     while not gh.isQueueEmpty():
         time.sleep(0.05)

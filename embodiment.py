@@ -16,7 +16,7 @@ class Embodiment:
         self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
         self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        self.headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
         
         self.toNeutral()
     
@@ -45,16 +45,16 @@ class Embodiment:
     def setHeadPitch(self, degrees):
         if degrees > 40:
             degrees = 40
-        if degrees < -30:
-            degrees = -30
+        if degrees < -20:
+            degrees = -20
         self.headPitchDegrees = degrees
         self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
-        if degrees > 90:
-            degrees = 90
-        if degrees < -90:
-            degrees = -90
+        if degrees > 80:
+            degrees = 80
+        if degrees < -100:
+            degrees = -100
         self.headYawDegrees = degrees
         self.headYaw.angle = (self.headYawDegrees)
 
@@ -91,5 +91,5 @@ if __name__ == "__main__":
                     print(f"Invalid command: {cmd}")
             else:
                 print(f"Invalid command: {cmd}")
-        print(f"l: {duck.getLeftWing()}, r: {duck.getRightWing()}, p: {duck.getHeadPitch()}, y: {duck.getHeadYaw()}")
+        print(f"l: {duck.getLeftWing()}, r: {duck.getRightWing()}, y: {duck.getHeadYaw()}, p: {duck.getHeadPitch()}")
         cmd = input()

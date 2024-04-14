@@ -13,7 +13,12 @@ talk3_coords = np.array([150, 130, 0, 10])
 talk4_coords = np.array([130, 150, 0, -10])
 idle_coords = np.array([[-30, 150], [-30, 150], [-45, 45], [-30, 40]])
 
-T = 0.625
+thinking1_coords = np.array([120, -10, -30, -15])
+thinking2_coords = np.array([-10, 120, 30, -15])
+ahah1_coords = np.array([45, 45, 10, 15])
+sad1_coords = np.array([-15, -15, 10, -20])
+
+T = 0.5
 N = 100
 
 #dt = 0.04
@@ -55,10 +60,26 @@ def talk4(body, N=N, T=T):
     print("Going to talk 4...", flush=True)
     toSimplePose(body, talk4_coords, N, T)
 
-def idle(body, N=N, T=T):
+def rand(body, N=N, T=T):
     print("Going to random idle...", flush=True)
-    toSimplePose(body, idle_coords, N, T)
+    toSimplePose(body, idle_coords, N, 1.5*np.random.rand()+0.1)
+
+def thinking(body):
+    print("Going to thinking...")
+    which = np.random.randint(0, 2)
+    if which == 0:
+        toSimplePose(body, thinking1_coords, N, T)
+    elif which == 1:
+        toSimplePose(body, thinking2_coords, N, T)
+
+def ahah1(body):
+    print("Going to ahah...")
+    toSimplePose(body, ahah1_coords, N=N, T=0.25)
+
+def snap_neutral(body):
+    print("Going to snap_neutral...")
+    body.setPose(neutral_coords)
 
 def neutral(body):
     print("Going to neutral...")
-    body.setPose(neutral_coords)
+    toSimplePose(body, neutral_coords, N=N, T=T)
