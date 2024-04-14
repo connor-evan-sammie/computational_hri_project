@@ -10,6 +10,7 @@ from backchannel import BackchannelDetector
 from gesturehandler import GestureHandler
 import random
 import threading
+import wave
 import time
 
 PROJECT_ID = "duck-414417"
@@ -20,9 +21,9 @@ AI_MODEL = "codechat-bison@002"
 LOCATION = "us-central1"
 VOICE_MODEL = "en-US-Journey-F"
 FRAME_SIZE = 4096
+AUDIO_RATE = 44100
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.add_argument('-t', '--text', action='store_true')
 
@@ -50,6 +51,13 @@ def llm_respond(model, input_text):
     response = chat.send_message(input_text)
     return response.text
 
+def play_audio(output, wav):
+    data = wav.readframes(FRAME_SIZE)
+    while data:
+        output.write(data)
+        data = wav.readframes(FRAME_SIZE)
+    wav.close()
+
 def text_to_speech(client, output, input_text):
     print("Speaking...")
     if args.verbose: print("Output: " + input_text)
@@ -65,14 +73,19 @@ def text_to_speech(client, output, input_text):
     response = client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
-    output.write(response.audio_content)
-
+    with open("output.wav", "wb") as out:
+        out.write(response.audio_content)
+        out.close()
+    wf = wave.open("output.wav", 'rb')
+    speak_thread = threading.Thread(target=play_audio, args = (output, wf,))
+    speak_thread.daemon = True
+    speak_thread.start()
+    return wf.getnframes() / float(wf.getframerate())
 
 with open('prompt.txt', 'r') as file:
     prompt = file.read()
 
 vertexai.init(project=PROJECT_ID, location=LOCATION)
-#model = GenerativeModel(AI_MODEL)
 model = CodeChatModel.from_pretrained(AI_MODEL)
 chat = model.start_chat()
 chat.send_message(prompt)
@@ -90,10 +103,7 @@ def backchannel_callback():
     i = random.randint(0, len(gestures)-1)
     gh.addToQueue(gestures[i])
 
-#text_to_speech(client, output, "quack")
-#with open("oxp.wav", "rb") as file:
-#    file_content = file.read()
-#    output.write(file_content)
+text_to_speech(client, output, "quack")
 
 gh.start()
 while True:
@@ -109,7 +119,10 @@ while True:
     hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, "hmmmm....",))
     hmmm_thread.daemon = True
     hmmm_thread.start()
-    response = llm_respond(chat, text)
+    try: 
+        response = llm_respond(chat, text)
+    except:
+        continue;
     hmmm_thread.join()
     if args.text: print("Output: " + response)
     else: text_to_speech(client, output, response)
