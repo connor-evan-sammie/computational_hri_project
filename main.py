@@ -12,6 +12,10 @@ import random
 import threading
 import wave
 import time
+import signal
+import sys
+
+
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -97,6 +101,14 @@ output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, fra
 client = texttospeech.TextToSpeechClient()
 bd = BackchannelDetector()
 gh = GestureHandler()
+def signal_handler(sig, frame):
+    gh.clearQueue()
+    gh.addToQueue("neutral")
+    while not gh.isQueueEmpty():
+        time.sleep(0.05)
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 def backchannel_callback():
     print("Gesture!")

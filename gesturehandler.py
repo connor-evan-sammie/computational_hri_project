@@ -34,8 +34,8 @@ class GestureHandler:
                 time.sleep(0.01)
                 continue
             action_func = getattr(gesticulator, self.action_queue[0])
-            self.action_queue.pop(0)
             action_func(self.body)
+            self.action_queue.pop(0)
             #action_thread = threading.Thread(target=action_func, args=(self.body,))
             #action_thread.daemon = True
             #action_thread.start()
