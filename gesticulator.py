@@ -130,11 +130,11 @@ def declare_chatty(body, args):
     cycles = max(int(duration // wobble_duration), wobble_duration)
     for i in range(cycles):
         if i % 2 == 0:
-            toSimplePose(body, chattyA_coords, N=N, T=2*wobble_duration/3)
-            time.sleep(wobble_duration/3)
+            toSimplePose(body, chattyA_coords, N=N, T=wobble_duration)
+            #time.sleep(wobble_duration/3)
         if i % 2 == 1:
-            toSimplePose(body, chattyB_coords, N=N, T=2*wobble_duration/3)
-            time.sleep(wobble_duration/3)
+            toSimplePose(body, chattyB_coords, N=N, T=wobble_duration)
+            #time.sleep(wobble_duration/3)
 
 def declare(body, args):
     which = np.random.randint(0, 2)
