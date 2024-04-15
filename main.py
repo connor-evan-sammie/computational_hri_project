@@ -27,10 +27,14 @@ VOICE_MODEL = "en-US-Journey-F"
 FRAME_SIZE = 4096
 AUDIO_RATE = 44100
 
+firstrun = True
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.add_argument('-t', '--text', action='store_true')
 parser.add_argument('-i', '--intro', action='store_true')
+parser.add_argument('-b', '--bypassllm', action='store_true')
+
 
 
 args = parser.parse_args()
@@ -137,29 +141,32 @@ gh.start()
 with open('fillers.txt') as f:
     fillers = f.read().splitlines()
 
-if args.intro:
-    intro = llm_respond(chat, "Introduce yourself!")
-    speak_length = text_to_speech(client, output, intro)
-    time.sleep(speak_length)
+
 
 while True:
-    if args.text: text = input("Input: ")
+    if args.intro and firstrun:
+        text = "Introduce yourself!"
+    elif args.text: 
+        bd.start(backchannel_callback)
+        text = input("Input: ")
+        bd.stop()
+        gh.clearQueue()
     else:
         bd.start(backchannel_callback)
         text = speech_to_text()
         bd.stop()
         gh.clearQueue()
 
+    firstrun = False
+
     if text == "END_PROGRAM": break;
 
     try: 
         responses = llm_respond(chat, text)
         for response in responses:
-            if args.text: print("duck> " + response)
-            else:
-                print(response)
-                speak_length = text_to_speech(client, output, response)
-                gh.gestureForSpeaking(response, speak_length)
-                time.sleep(speak_length)
+            print(response)
+            speak_length = text_to_speech(client, output, response)
+            gh.gestureForSpeaking(response, speak_length)
+            time.sleep(speak_length)
     except:
         continue
