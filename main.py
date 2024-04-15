@@ -15,6 +15,7 @@ import time
 import signal
 import sys
 import demoji
+import sentence_splitter
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -30,6 +31,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='store_true')
 parser.add_argument('-t', '--text', action='store_true')
 parser.add_argument('-i', '--intro', action='store_true')
+
 
 args = parser.parse_args()
 
@@ -60,21 +62,12 @@ def llm_respond(model, input_text):
     for response in responses:
         part += response.text
 
-        while part.find("!") != -1 or part.find(".") != -1 or part.find("?") != -1:
-            div = 0
+        sentences = sentence_splitter.split_into_sentences(part)
 
-            first_ex = part.find("!")
-            if(first_ex == -1): first_ex = len(part)
-            first_pe = part.find(".")
-            if(first_pe == -1): first_pe = len(part)
-            first_qu = part.find("?")
-            if(first_qu == -1): first_qu = len(part)
-
-            div = min(first_ex, first_pe, first_qu)
-
-            sentence = part[0:div + 1]
-            sentence_queue.append(sentence)
-            part = part[div + 1::]
+        for sentence in sentences:
+            if sentence.endswith("!") or sentence.endswith("?") or sentence.endswith("."):
+                sentence_queue.append(sentence)
+                part = part.replace(sentence, "")
 
         while len(sentence_queue) != 0: 
             yield sentence_queue.pop(0)
@@ -157,10 +150,12 @@ while True:
         bd.stop()
         gh.clearQueue()
 
+    if text == "END_PROGRAM": break;
+
     try: 
         responses = llm_respond(chat, text)
         for response in responses:
-            if args.text: print("Output: " + response)
+            if args.text: print("duck> " + response)
             else:
                 print(response)
                 speak_length = text_to_speech(client, output, response)
