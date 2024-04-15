@@ -1,0 +1,5 @@
+sizeOfLL:
+    "size = 1" should be "size = 0"
+
+atHelper:
+    "return self.at_helper(node.next, idx)" should be "return self.at_helper(node.next, idx-1)"
