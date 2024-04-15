@@ -141,12 +141,10 @@ class LinkedList:
 
     # Recursive implementation helper function
     def at_helper(self, node, idx):
-        if node is None:
-            raise Exception("Error: Index out of bounds")
         if idx == 0:
             return node.data
         else:
-            return self.at_helper(node.next, idx-1)
+            return self.at_helper(node.next, idx)
  
     # print method for the linked list
     def printLL(self):
