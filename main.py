@@ -16,8 +16,6 @@ import signal
 import sys
 import demoji
 
-import speechrecog
-
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
@@ -143,8 +141,6 @@ def backchannel_callback():
 text_to_speech(client, output, "quack")
 gh.start()
 
-time.sleep(2)
-
 with open('fillers.txt') as f:
     fillers = f.read().splitlines()
 
@@ -156,9 +152,9 @@ if args.intro:
 while True:
     if args.text: text = input("Input: ")
     else:
-        #bd.start(backchannel_callback)
-        text = speechrecog.new_speech_to_text()
-        #bd.stop()
+        bd.start(backchannel_callback)
+        text = speech_to_text()
+        bd.stop()
         gh.clearQueue()
 
     try: 
