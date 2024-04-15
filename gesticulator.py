@@ -47,41 +47,32 @@ def toSimplePose(body, pose, N, T):
         new_pose = np.zeros((4,))
         for i in range(4):
             new_pose[i] = np.random.randint(pose[i, 0], pose[i, 1]+1, None)
-        print(f"Random coords: {new_pose}")
     else:
         new_pose = pose
     points = spline(curr_pose, new_pose, N)
     for i in range(points.shape[0]):
-        #print(points[i, :])
         body.setPose(points[i, :])
         time.sleep(dt)
 
 def talk1(body, N=N, T=T):
-    print("Going to talk 1...", flush=True)
     toSimplePose(body, talk1_coords, N, T)
 
 def talk2(body, N=N, T=T):
-    print("Going to talk 2...", flush=True)
     toSimplePose(body, talk2_coords, N, T)
 
 def talk3(body, N=N, T=T):
-    print("Going to talk 3...", flush=True)
     toSimplePose(body, talk3_coords, N, T)
 
 def talk4(body, N=N, T=T):
-    print("Going to talk 4...", flush=True)
     toSimplePose(body, talk4_coords, N, T)
 
 def rand(body, N=N, T=T):
-    print("Going to random pose...", flush=True)
     toSimplePose(body, pose_coords, N, 1.5*np.random.rand()+0.1)
 
 def idle(body, args=None):
-    print("Going to random idle...", flush=True)
     toSimplePose(body, idle_coords, N, np.random.rand()/2.0+1)
 
 def thinking(body, N=N, T=T):
-    print("Going to thinking...")
     which = np.random.randint(0, 2)
     if which == 0:
         toSimplePose(body, thinking1A_coords, N, T)
@@ -89,15 +80,12 @@ def thinking(body, N=N, T=T):
         toSimplePose(body, thinking2A_coords, N, T)
 
 def ahah1(body):
-    print("Going to ahah...")
     toSimplePose(body, ahah1_coords, N=N, T=0.25)
 
 def snap_neutral(body):
-    print("Going to snap_neutral...")
     body.setPose(neutral_coords)
 
 def neutral(body, T=T):
-    print("Going to neutral...")
     toSimplePose(body, neutral_coords, N=N, T=T)
 
 def question(body, args):

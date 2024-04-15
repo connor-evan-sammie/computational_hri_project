@@ -1,4 +1,5 @@
 import os
+from ctypes import *
 import speech_recognition as sr
 import vertexai
 from vertexai.generative_models import GenerativeModel, ChatSession
@@ -35,12 +36,9 @@ parser.add_argument('-t', '--text', action='store_true')
 parser.add_argument('-i', '--intro', action='store_true')
 parser.add_argument('-b', '--bypassllm', action='store_true')
 
-
-
 args = parser.parse_args()
 
 def speech_to_text():
-    print("Recognizing speech...")
     rec = sr.Recognizer()
     rec.energy_threshold = 300
     with sr.Microphone() as source:
@@ -49,16 +47,14 @@ def speech_to_text():
         try:
             text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
         except:
-            print("No audio recognized!")
             return ""
         return text
     return ""
 
 def llm_respond(model, input_text):
-    print("Using LLM to generate response...")
+    global chat
+    if len(input_text) == 0: return;
     if args.verbose: print("Input: " + input_text)
-    text_response = []
-    start = time.time()
     responses = chat.send_message_streaming(input_text)
 
     part = ""
@@ -84,7 +80,6 @@ def play_audio(output, wav):
     wav.close()
 
 def text_to_speech(client, output, input_text):
-    print("Speaking...")
     input_text = demoji.replace(input_text, "")
     if args.verbose: print("Output: " + input_text)
     voice = texttospeech.VoiceSelectionParams(
@@ -116,12 +111,20 @@ model = CodeChatModel.from_pretrained(AI_MODEL)
 chat = model.start_chat()
 chat.send_message(prompt)
 
+
+ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
+def py_error_handler(filename, line, function, err, fmt): return
+c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+
+asound = cdll.LoadLibrary('libasound.so')
+asound.snd_lib_error_set_handler(c_error_handler)
+
 p = pyaudio.PyAudio()
 output = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True, frames_per_buffer=FRAME_SIZE)
 
 client = texttospeech.TextToSpeechClient()
-bd = BackchannelDetector()
-gh = GestureHandler()
+bd = BackchannelDetector(verbose=args.verbose)
+gh = GestureHandler(verbose=args.verbose)
 def signal_handler(sig, frame):
     gh.clearQueue()
     gh.addToQueue("neutral")
@@ -132,10 +135,11 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def backchannel_callback():
-    print("backchannel!")
+    #print("backchannel!")
     gh.addToQueue("idle")
 
 text_to_speech(client, output, "quack")
+print("Ready!")
 gh.start()
 
 with open('fillers.txt') as f:
@@ -144,9 +148,7 @@ with open('fillers.txt') as f:
 
 
 while True:
-    if args.intro and firstrun:
-        text = "Introduce yourself!"
-    elif args.text: 
+    if args.text: 
         bd.start(backchannel_callback)
         text = input("Input: ")
         bd.stop()
@@ -157,14 +159,13 @@ while True:
         bd.stop()
         gh.clearQueue()
 
-    firstrun = False
-
+    print("user< " + text)
     if text == "END_PROGRAM": break;
 
     try: 
         responses = llm_respond(chat, text)
         for response in responses:
-            print(response)
+            print("duck> " + response)
             speak_length = text_to_speech(client, output, response)
             gh.gestureForSpeaking(response, speak_length)
             time.sleep(speak_length)

@@ -95,7 +95,7 @@ def main(args):
         P1_P2 = time.time() - last_percentile_26 >= 0.110
         P3 = time.time() - last_silence >= 0.700
         P4 = time.time() - last_backchannel >= 0.800
-        print(f"{P1_P2} {P3} {P4}")
+        #print(f"{P1_P2} {P3} {P4}")
         if(P1_P2 and P3 and P4):
             last_satisfied = time.time()
             #ps = []
@@ -103,7 +103,7 @@ def main(args):
             #vs = []
         P5 = time.time() - last_satisfied - 0.7 > 0
         if P5:
-            print("GESTURE!!!!!!!!!!!!!!!!!!!!")
+            #print("GESTURE!!!!!!!!!!!!!!!!!!!!")
             last_satisfied = sys.float_info.max
             last_backchannel = time.time()
             gs.append(time.time()-t1)

@@ -7,7 +7,7 @@ import scipy.signal
 import threading
 
 class BackchannelDetector:
-    def __init__(self):
+    def __init__(self, verbose):
         BUFFER_SIZE             = 4096
         CHANNELS                = 1
         FORMAT                  = pyaudio.paFloat32
@@ -24,6 +24,7 @@ class BackchannelDetector:
         self.pDetection.set_silence(-60)
         self.b, self.a = scipy.signal.butter(3, 1000, 'lowpass', fs=SAMPLE_RATE)
         self.running = False
+        self.verbose = verbose
 
     def start(self, callback = lambda : None):
         self.t = threading.Thread(target = self.__run, args=(callback,))

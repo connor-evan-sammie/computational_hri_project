@@ -5,11 +5,12 @@ from embodiment import Embodiment as body
 
 class GestureHandler:
 
-    def __init__(self):
+    def __init__(self, verbose):
         self.action_queue = []
         self.running = False
         self.body = body()
         self._is_gesticulating = False
+        self.verbose = verbose
 
     def getBackchannelGestures(self):
         return ["rand", "rand", "rand", "rand", "rand", "talk1", "talk2", "talk3", "talk4"]
