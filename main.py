@@ -14,8 +14,7 @@ import wave
 import time
 import signal
 import sys
-
-
+import demoji
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -53,8 +52,32 @@ def llm_respond(model, input_text):
     print("Using LLM to generate response...")
     if args.verbose: print("Input: " + input_text)
     text_response = []
-    response = chat.send_message(input_text)
-    return response.text
+    start = time.time()
+    responses = chat.send_message_streaming(input_text)
+
+    part = ""
+    sentence_queue = []
+    for response in responses:
+        part += response.text
+
+        while part.find("!") != -1 or part.find(".") != -1 or part.find("?") != -1:
+            div = 0
+
+            first_ex = part.find("!")
+            if(first_ex == -1): first_ex = len(part)
+            first_pe = part.find(".")
+            if(first_pe == -1): first_pe = len(part)
+            first_qu = part.find("?")
+            if(first_qu == -1): first_qu = len(part)
+
+            div = min(first_ex, first_pe, first_qu)
+
+            sentence = part[0:div + 1]
+            sentence_queue.append(sentence)
+            part = part[div + 1::]
+
+        while len(sentence_queue) != 0: 
+            yield sentence_queue.pop(0)
 
 def play_audio(output, wav):
     data = wav.readframes(FRAME_SIZE)
@@ -65,6 +88,7 @@ def play_audio(output, wav):
 
 def text_to_speech(client, output, input_text):
     print("Speaking...")
+    input_text = demoji.replace(input_text, "")
     if args.verbose: print("Output: " + input_text)
     voice = texttospeech.VoiceSelectionParams(
         name=VOICE_MODEL,
@@ -111,10 +135,8 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def backchannel_callback():
-    print("Gesture!")
-    gestures = gh.getBackchannelGestures()
-    i = random.randint(0, len(gestures)-1)
-    gh.addToQueue(gestures[i])
+    print("backchannel!")
+    gh.addToQueue("idle")
 
 text_to_speech(client, output, "quack")
 gh.start()
@@ -134,24 +156,15 @@ while True:
         text = speech_to_text()
         bd.stop()
         gh.clearQueue()
-    
-    filler = fillers[random.randrange(0, len(fillers) - 1)]
-    print(filler)
 
-    hmmm_thread = threading.Thread(target=text_to_speech, args = (client, output, filler,))
-    hmmm_thread.daemon = True
-    hmmm_thread.start()
-    start_time = time.time()
     try: 
-        response = llm_respond(chat, text)
+        responses = llm_respond(chat, text)
+        for response in responses:
+            if args.text: print("Output: " + response)
+            else:
+                print(response)
+                speak_length = text_to_speech(client, output, response)
+                gh.gestureForSpeaking(response, speak_length)
+                time.sleep(speak_length)
     except:
-        continue;
-    hmmm_thread.join()
-
-    if(time.time() - start_time < 2):
-        time.sleep(random.uniform(0.4, 1.6))
-
-    if args.text: print("Output: " + response)
-    else: 
-        speak_length = text_to_speech(client, output, response)
-        time.sleep(speak_length)
+        continue
