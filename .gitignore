@@ -2,3 +2,4 @@ venv
 creds.json
 __pycache__
 output.wav
+log/

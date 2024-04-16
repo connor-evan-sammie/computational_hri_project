@@ -1,3 +1,4 @@
+cd ~/design_hri_project
 source ./venv/bin/activate
 sudo pigpiod
 pulseaudio --kill

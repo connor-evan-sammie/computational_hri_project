@@ -44,9 +44,10 @@ logging.basicConfig(filename="./log/" + datetime.datetime.now().strftime("%Y-%m-
 
 def speech_to_text():
     rec = sr.Recognizer()
-    rec.energy_threshold = 300
+    rec.energy_threshold = 300 # this isnt doing anything
+    #rec.pause_threshold = 0.6
     with sr.Microphone() as source:
-        rec.adjust_for_ambient_noise(source, duration=0.5)
+        rec.adjust_for_ambient_noise(source, duration=0.5) #since this auto ad
         audio = rec.listen(source)
         try:
             text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
@@ -149,8 +150,6 @@ gh.start()
 with open('fillers.txt') as f:
     fillers = f.read().splitlines()
 
-
-
 while True:
     if args.text: 
         bd.start(backchannel_callback)
@@ -163,14 +162,15 @@ while True:
         bd.stop()
         gh.clearQueue()
 
-    print("user< " + text)
-    logger.info('user< %s', text)
+    print("\n\nUser said: {}".format(text))
+    logger.info('User said: %s', text)
     if text == "END_PROGRAM": break;
 
     try: 
         responses = llm_respond(chat, text)
+        print("\n")
         for response in responses:
-            print("duck> " + response)
+            print("\tDuck says: {}".format(response))
             logger.info('duck> %s', response)
             speak_length = text_to_speech(client, output, response)
             gh.gestureForSpeaking(response, speak_length)
