@@ -59,7 +59,7 @@ class BackchannelDetector:
             P4 = time.time() - last_backchannel >= 0.800
             if(P1_P2 and P3 and P4):
                 last_satisfied = time.time()
-            P5 = time.time() - last_satisfied - 0.700 > 0
+            P5 = time.time() - last_satisfied - 3.000 > 0 #default is 0.700
             if P5:
                 last_satisfied = sys.float_info.max
                 last_backchannel = time.time()

@@ -25,6 +25,8 @@ chattyB_coords = np.array([15, -15, 0, 5])
 
 inquire1_coords = np.array([[0, 0], [0, 0], [-10, 10], [25, 25]])
 
+nodA_coords = np.array([0, 0, 0, 10])
+nodB_coords = np.array([10, 10, 0, -5])
 
 ahah1_coords = np.array([[75, 125], [75, 125], [0, 0], [26, 30]])
 
@@ -95,7 +97,8 @@ def question(body, args):
 def exclaim(body, args):
     duration = args[0]
     #if duration < 1:
-    toSimplePose(body, ahah1_coords, N=N, T=min(duration, 0.2))
+    wing_angle = np.random.randint(75, 125, None)
+    toSimplePose(body, np.array([wing_angle, wing_angle, 0, 26]), N=N, T=min(duration, 0.2))
 
 def declare_thinking(body, args):
     duration = args[0]
@@ -130,6 +133,21 @@ def declare(body, args):
         declare_thinking(body, args)
     elif which == 1:
         declare_chatty(body, args)
+
+def nod(body):
+    nod_duration = 0.4
+    toSimplePose(body, nodA_coords, N=N, T=nod_duration)
+    toSimplePose(body, nodB_coords, N=N, T=nod_duration)
+    toSimplePose(body, nodA_coords, N=N, T=nod_duration)
+
+def listening(body):
+    which = np.random.randint(0, 4)
+    if which == 0:
+        nod(body)
+    elif which == 1:
+        declare_chatty(body, (1.25,))
+    elif which == 2:
+        declare_thinking(body, (3,))
 
 def testing(body, args):
     print("YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY")

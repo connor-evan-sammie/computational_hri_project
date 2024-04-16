@@ -1,0 +1,6 @@
+DEBUG:google.auth._default:Checking ./creds.json for explicit credentials as part of auth process...
+INFO:__main__:user< help, my code isn't working!!!!!!!!
+INFO:__main__:duck> Oh no!
+INFO:__main__:duck> It sounds like you're having a tough time with your code.
+INFO:__main__:duck> Don't worry, we'll figure this out together.
+INFO:__main__:duck> Can you tell me a little bit more about what's going on?

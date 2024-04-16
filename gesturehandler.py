@@ -5,7 +5,7 @@ from embodiment import Embodiment as body
 
 class GestureHandler:
 
-    def __init__(self, verbose):
+    def __init__(self, verbose = False):
         self.action_queue = []
         self.running = False
         self.body = body()
@@ -66,17 +66,9 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    gh.gestureForSpeaking("What is happening?", 0.1)
+    gh.addToQueue(("declare_thinking", 1))
 
-    #gh.addToQueue(("testing", 7))
-    #for i in range(10):
-    #    gh.addToQueue("thinking")
-    #gh.addToQueue("thinking")
-    #time.sleep(2)
-    #gh.addToQueue("ahah1")
-    #time.sleep(2)
-    #for i in range(60):
-    #    gh.addToQueue("rand")
+
     gh.addToQueue("neutral")
     while not gh.isQueueEmpty():
         time.sleep(0.05)

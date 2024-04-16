@@ -17,6 +17,8 @@ import signal
 import sys
 import demoji
 import sentence_splitter
+import logging
+import datetime
 
 PROJECT_ID = "duck-414417"
 GOOGLE_CLOUD_CREDENTIALS = "./creds.json"
@@ -37,6 +39,8 @@ parser.add_argument('-i', '--intro', action='store_true')
 parser.add_argument('-b', '--bypassllm', action='store_true')
 
 args = parser.parse_args()
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="./log/" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log", encoding='utf-8', level=logging.DEBUG)
 
 def speech_to_text():
     rec = sr.Recognizer()
@@ -136,7 +140,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def backchannel_callback():
     #print("backchannel!")
-    gh.addToQueue("idle")
+    gh.addToQueue("listening")
 
 text_to_speech(client, output, "quack")
 print("Ready!")
@@ -160,14 +164,17 @@ while True:
         gh.clearQueue()
 
     print("user< " + text)
+    logger.info('user< %s', text)
     if text == "END_PROGRAM": break;
 
     try: 
         responses = llm_respond(chat, text)
         for response in responses:
             print("duck> " + response)
+            logger.info('duck> %s', response)
             speak_length = text_to_speech(client, output, response)
             gh.gestureForSpeaking(response, speak_length)
             time.sleep(speak_length)
+        gh.addToQueue("neutral")
     except:
         continue
