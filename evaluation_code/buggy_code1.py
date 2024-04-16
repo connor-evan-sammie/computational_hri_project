@@ -35,8 +35,8 @@ class LinkedList:
                 current_node = current_node.next
  
             if current_node is not None:
-                new_node.next = current_node.next
                 current_node.next = new_node
+                new_node.next = current_node.next
             else:
                 raise IndexError(f"Index of {index} is out of bounds for list of size {self.sizeOfLL()}")
  
@@ -49,7 +49,7 @@ class LinkedList:
             return
  
         current_node = self.head
-        while(current_node.next is not None):
+        while(current_node is not None):
             current_node = current_node.next
  
         current_node.next = new_node
@@ -59,8 +59,8 @@ class LinkedList:
         if(self.head is None):
             return
  
-        #if (self.head.next is not None):
-        self.head = self.head.next
+        if (self.head.next is not None):
+            self.head = self.head.next
  
     # Method to remove last node of linked list
     def removeLastNode(self):
@@ -76,7 +76,7 @@ class LinkedList:
         while(current_node.next.next is not None):
             current_node = current_node.next
  
-        current_node.next = None
+        current_node = None
  
     # Method to remove at given index
     def removeAtIndex(self, index):
@@ -115,7 +115,7 @@ class LinkedList:
  
     # Print the size of linked list
     def sizeOfLL(self):
-        size = 0
+        size = 1
         if(self.head):
             current_node = self.head
             while(current_node is not None):
@@ -133,7 +133,7 @@ class LinkedList:
             return [] #Empty list
         else:
             # Iterate throught the list, appending each node as it goes along
-            list = []
+            list = [self.head.data]
             curr_node = self.head
             while curr_node is not None:
                 list.append(curr_node.data)
