@@ -1,5 +1,6 @@
-sizeOfLL:
-    "size = 1" should be "size = 0"
-
-atHelper:
-    "return self.at_helper(node.next, idx)" should be "return self.at_helper(node.next, idx-1)"
+Line 136: Change "list = [self.head.data]" to "list = []"
+Line 118: Change "size = 1" to "size = 0"
+Line 62: Delete the condition "if (self.head.next is not None):" and move line 63 over 1 tab
+Line 52: Change "while(current_node is not None):" to "while(current_node.next is not None):"
+Line 79: Change "current_node = None" to current_node.next = None"
+Lines 38 and 39: Switch them

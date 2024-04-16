@@ -38,7 +38,7 @@ class LinkedList:
                 new_node.next = current_node.next
                 current_node.next = new_node
             else:
-                print("Index not present")
+                raise IndexError(f"Index of {index} is out of bounds for list of size {self.sizeOfLL()}")
  
     # Method to add a node at the end of LL
  
@@ -59,15 +59,16 @@ class LinkedList:
         if(self.head is None):
             return
  
+        #if (self.head.next is not None):
         self.head = self.head.next
  
     # Method to remove last node of linked list
     def removeLastNode(self):
  
-        if self.head is None:
+        if self.head is None: #Return if the list is empty
             return
  
-        if self.head.next is None:
+        if self.head.next is None: #Delete the head node if it is the only node
             self.head = None
             return
         
@@ -120,18 +121,24 @@ class LinkedList:
             while(current_node is not None):
                 size = size+1
                 current_node = current_node.next
+                if size > 1024:
+                    raise Exception("Error: size has exceeded max size of 1024. Is there a node reference loop?")
             return size
         else:
             return 0
         
     # Return the linked list as a Python array
     def getAsPythonList(self):
-        list = []
-        curr_node = self.head
-        while curr_node is not None:
-            list.append(curr_node.data)
-            curr_node = curr_node.next
-        return list
+        if self.head is None:
+            return [] #Empty list
+        else:
+            # Iterate throught the list, appending each node as it goes along
+            list = []
+            curr_node = self.head
+            while curr_node is not None:
+                list.append(curr_node.data)
+                curr_node = curr_node.next
+            return list
     
     # Return the value at a specific index recursively
     def at(self, idx):
@@ -144,7 +151,7 @@ class LinkedList:
         if idx == 0:
             return node.data
         else:
-            return self.at_helper(node.next, idx)
+            return self.at_helper(node.next, idx-1)
  
     # print method for the linked list
     def printLL(self):
