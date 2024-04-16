@@ -87,8 +87,9 @@ def ahah1(body):
 def snap_neutral(body):
     body.setPose(neutral_coords)
 
-def neutral(body, T=T):
+def neutral(body, duration = 0, T=T):
     toSimplePose(body, neutral_coords, N=N, T=T)
+    time.sleep(duration)
 
 def question(body, args):
     duration = args[0]
@@ -96,9 +97,13 @@ def question(body, args):
 
 def exclaim(body, args):
     duration = args[0]
+    wait_time = 0
+    if len(args) == 2:
+        wait_time = args[1]
     #if duration < 1:
     wing_angle = np.random.randint(75, 125, None)
     toSimplePose(body, np.array([wing_angle, wing_angle, 0, 26]), N=N, T=min(duration, 0.2))
+    time.sleep(wait_time)
 
 def declare_thinking(body, args):
     duration = args[0]

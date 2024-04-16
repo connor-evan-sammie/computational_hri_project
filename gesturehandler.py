@@ -66,8 +66,12 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    gh.addToQueue(("declare_thinking", 1))
-
+    gh.addToQueue(("declare_thinking", 3))
+    gh.addToQueue(("declare_chatty", 5))
+    gh.addToQueue(("exclaim", 3, 1.5))
+    gh.addToQueue("nod")
+    gh.addToQueue("neutral")
+    gh.addToQueue(("question", 3))
 
     gh.addToQueue("neutral")
     while not gh.isQueueEmpty():
