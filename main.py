@@ -42,19 +42,13 @@ args = parser.parse_args()
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="./log/" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log", encoding='utf-8', level=logging.DEBUG)
 
-def speech_to_text():
-    rec = sr.Recognizer()
-    rec.energy_threshold = 300 # this isnt doing anything
-    #rec.pause_threshold = 0.6
-    with sr.Microphone() as source:
-        rec.adjust_for_ambient_noise(source, duration=0.5) #since this auto ad
-        audio = rec.listen(source)
-        try:
-            text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
-        except:
-            return ""
-        return text
-    return ""
+def speech_to_text(rec, source):
+    audio = rec.listen(source)
+    try:
+        text = rec.recognize_google_cloud(audio, credentials_json=GOOGLE_CLOUD_CREDENTIALS)
+    except:
+        return ""
+    return text
 
 def llm_respond(model, input_text):
     global chat
@@ -143,6 +137,10 @@ def backchannel_callback():
     #print("backchannel!")
     gh.addToQueue("listening")
 
+rec = sr.Recognizer()
+with sr.Microphone() as source:
+    rec.adjust_for_ambient_noise(source, duration=2)
+
 text_to_speech(client, output, "quack")
 print("Ready!")
 gh.start()
@@ -158,7 +156,8 @@ while True:
         gh.clearQueue()
     else:
         bd.start(backchannel_callback)
-        text = speech_to_text()
+        with sr.Microphone() as source:
+            text = speech_to_text(rec, source)
         bd.stop()
         gh.clearQueue()
 
@@ -168,13 +167,12 @@ while True:
 
     try: 
         responses = llm_respond(chat, text)
-        print("\n")
         for response in responses:
             print("\tDuck says: {}".format(response))
             logger.info('duck> %s', response)
             speak_length = text_to_speech(client, output, response)
             gh.gestureForSpeaking(response, speak_length)
             time.sleep(speak_length)
-        gh.addToQueue("neutral")
+        #gh.addToQueue("neutral")
     except:
         continue
