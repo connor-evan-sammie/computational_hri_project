@@ -11,3 +11,4 @@ aubio
 piServo
 piServoCtl
 scikit-image
+headpose
