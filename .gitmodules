@@ -1,0 +1,3 @@
+[submodule "AffectNet"]
+	path = AffectNet
+	url = git@github.com:djordjebatic/AffectNet.git
