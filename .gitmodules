@@ -1,3 +1,6 @@
 [submodule "AffectNet"]
 	path = AffectNet
 	url = git@github.com:connor-evan-sammie/AffectNet.git
+[submodule "pitchdetector"]
+	path = pitchdetector
+	url = git@github.com:connor-evan-sammie/pitchdetector.git

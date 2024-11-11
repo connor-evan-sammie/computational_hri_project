@@ -59,5 +59,5 @@ if __name__ == "__main__":
 
     emotions = FaceHandler(example_callback)
     emotions.start()
-    time.sleep(20)
+    time.sleep(5)
     emotions.stop()
