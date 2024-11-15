@@ -46,7 +46,7 @@ class BackchannelMDP:
         self.state_space = np.reshape(grid, (5, -1))
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
-        self.action_space = np.zeros((1, 10))
+        self.action_space = np.zeros((1, 20))
         
         # current_state represents the column index of the current state in the context of state_space
         self.current_state = 0
