@@ -51,7 +51,6 @@ class BackchannelMDP:
         # current_state represents the column index of the current state in the context of state_space
         self.current_state = 0
         
-        
         # MDP values
         self.action_space_size = self.action_space.shape[1]
         self.state_space_size = self.state_space.shape[1]
@@ -91,14 +90,13 @@ class BackchannelMDP:
         
         
     # takes in face measurements and applies them to self.measurements    
-    def face_callback(face_measurements):
-        pass
+    def set_face_measurements(self, face_measurements):
+        self.measurements[0:4] = face_measurements
     
     # takes in speech measurements and applies them to self.measurements  
-    def speech_callback(speech_measurements):
-        pass
+    def set_speech_measurements(self, speech_measurements):
+        self.measurements[4:] = speech_measurements
         
-
     def _quantize(self, x, bins):
         if x < bins[0]:
             return 0
@@ -124,17 +122,19 @@ class BackchannelMDP:
             ifl = 2
         return ifl
     
-    def _generate_state_space(self):
-        pass
-    
     # measurement is a column vector float of size 9
-    # TODO: find closest state to given mesurements and then set current state to this index using self.state_space
+    # find closest state to given mesurements and then set current state to this index using self.state_space
     def _measurements_to_state(self, measurement):
 
-        val_cur_idx = self._quantize(measurement[0], self.val_states)
-        aro_cur_idx = self._quantize(measurement[1], self.aro_states)
-        pit_cur_idx = self._quantize(measurement[2], self.pit_states)
-        yaw_cur_idx = self._quantize(measurement[3], self.yaw_states)
-        ifl_cur_idx = self._get_inflection_idx(np.flip(measurement[4:]))
-
-        self.current_state = 0
+        val_idx = self._quantize(measurement[0], self.val_states)
+        aro_idx = self._quantize(measurement[1], self.aro_states)
+        pit_idx = self._quantize(measurement[2], self.pit_states)
+        yaw_idx = self._quantize(measurement[3], self.yaw_states)
+        ifl_idx = self._get_inflection_idx(np.flip(measurement[4:]))
+        
+        n_aro = self.aro_states.shape[0]
+        n_pit = self.pit_states.shape[0]
+        n_yaw = self.yaw_states.shape[0]
+        n_ifl = self.ifl_states.shape[0]
+        
+        self.current_state = ifl_idx + n_ifl*yaw_idx + n_ifl*n_yaw*pit_idx + n_ifl*n_yaw*n_pit*aro_idx + n_ifl*n_yaw*n_pit*n_aro*val_idx
