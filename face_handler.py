@@ -3,6 +3,10 @@ from headpose.detect import PoseEstimator
 import cv2
 import threading
 import time
+from matplotlib import pyplot as plt
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 
 PATH_TO_CKPT = './AffectNet/deployment/frozen_graphs/frozen_inference_graph_face.pb'
 PATH_TO_CLASS = './AffectNet/deployment/frozen_graphs/classificator_full_model.pb'
@@ -54,10 +58,25 @@ class FaceHandler():
         cv2.VideoCapture(0).release()
 
 if __name__ == "__main__":
+    poses = []
     def example_callback(valence, arousal, emotions_detected, pose):
+        if len(pose) > 0:
+            poses.append(pose)
         print(f"Valences: {valence}, Arousals: {arousal}, Emotions: {emotions_detected}, Pose: {pose}")
 
     emotions = FaceHandler(example_callback)
     emotions.start()
-    time.sleep(5)
+    time.sleep(120)
     emotions.stop()
+    poses = np.array(poses)
+    print(poses)
+    plt.plot(poses)
+    print(f"Roll min: {np.min(poses[:, 0])}")
+    print(f"Roll max: {np.max(poses[:, 0])}")
+    print(f"Pitch min: {np.min(poses[:, 1])}")
+    print(f"Pitch max: {np.max(poses[:, 1])}")
+    print(f"Yaw min: {np.min(poses[:, 2])}")
+    print(f"Yaw max: {np.max(poses[:, 2])}")
+    plt.legend(["roll", "pitch", "yaw"])
+    plt.show()
+
