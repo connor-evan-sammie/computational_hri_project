@@ -42,7 +42,7 @@ class BackchannelMDP:
         self.pit_states = np.linspace(-35, 45, 5)
         self.yaw_states = np.linspace(-30, 30, 3)
         self.ifl_states = np.linspace(-1, 1, 3)
-        grid = np.meshgrid(self.val_states, self.aro_states, self.pit_states, self.yaw_states, self.ifl_states)
+        grid = np.meshgrid(self.val_states, self.aro_states, self.pit_states, self.yaw_states, self.ifl_states, indexing='ij')
         self.state_space = np.reshape(grid, (5, -1))
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
@@ -111,17 +111,17 @@ class BackchannelMDP:
         return bins.shape-1
     
     # Takes in a series of pitches ordered chronologically and returns the concavity (-1, 0, or 1) based on a threshold limit
-    def _get_inflection(self, pitches):
+    def _get_inflection_idx(self, pitches):
         xs = np.arange(0, pitches.shape)
         fit = np.polyfit(xs, pitches, 2)
         quadratic_term = fit[0]
         concavity_limit = 0.1
         if quadratic_term < -concavity_limit:
-            ifl = -1
-        elif -concavity_limit <= quadratic_term <= concavity_limit:
             ifl = 0
-        else:
+        elif -concavity_limit <= quadratic_term <= concavity_limit:
             ifl = 1
+        else:
+            ifl = 2
         return ifl
     
     def _generate_state_space(self):
@@ -131,10 +131,10 @@ class BackchannelMDP:
     # TODO: find closest state to given mesurements and then set current state to this index using self.state_space
     def _measurements_to_state(self, measurement):
 
-        val_cur = self.val_states[self._quantize(measurement[0], self.val_states)]
-        aro_cur = self.aro_states[self._quantize(measurement[1], self.aro_states)]
-        pit_cur = self.pit_states[self._quantize(measurement[2], self.pit_states)]
-        yaw_cur = self.yaw_states[self._quantize(measurement[3], self.yaw_states)]
-        ifl = self._get_inflection(np.flip(measurement[4:]))
+        val_cur_idx = self._quantize(measurement[0], self.val_states)
+        aro_cur_idx = self._quantize(measurement[1], self.aro_states)
+        pit_cur_idx = self._quantize(measurement[2], self.pit_states)
+        yaw_cur_idx = self._quantize(measurement[3], self.yaw_states)
+        ifl_cur_idx = self._get_inflection_idx(np.flip(measurement[4:]))
 
         self.current_state = 0
