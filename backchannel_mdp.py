@@ -79,8 +79,8 @@ class BackchannelMDP:
         for i in range(self.action_space_size):
             for j in range(self.state_space_size):
                 for k in range(self.state_space_size):
-                    self.P = self._calculate_transition(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
-                    self.R = self._calculate_reward(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.P[i, j ,k] = self._calculate_transition(self, self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.R[i, j, k] = self._calculate_reward(self, self.action_space[i], self.state_space[:, j], self.state_space[:, k])
 
         # random shit to make the code work
         self.callback = callback
@@ -171,16 +171,28 @@ class BackchannelMDP:
         
         self.current_state = ifl_idx + n_ifl*yaw_idx + n_ifl*n_yaw*pit_idx + n_ifl*n_yaw*n_pit*aro_idx + n_ifl*n_yaw*n_pit*n_aro*val_idx
         
-    def _calculate_transition(action, initial_state, end_state):
+    def _calculate_transition(self, action, initial_state, end_state):
         probability = 0.0
+        
+        action_characteristics = self.action_space_mapping(action)
+        
+        state_transition_magnitude = np.inner(initial_state, end_state)
+        probability += 1.0/state_transition_magnitude
+        
+        
+        
         
         # if states are close assign high probability
         # if states are far assign low probability
         
         return probability
     
-    def _calculate_reward(action, initial_state, end_state):
+    def _calculate_reward(self, action, initial_state, end_state):
         reward = 0.0
+        
+        action_characteristics = self.action_space_mapping(action)
+        
+        
         
         # given changing conditions, add or subtract values from reward
         # increased valence --> good, more rewards
