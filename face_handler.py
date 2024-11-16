@@ -52,7 +52,6 @@ class FaceHandler():
                 try:
                     yaw, pitch, roll = self.pose_estimator.pose_from_image(img)
                 except ValueError:
-                    print("error!")
                     continue
                 if len(valence) == 0 or len(arousal) == 0:
                     continue

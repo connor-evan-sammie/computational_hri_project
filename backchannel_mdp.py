@@ -47,7 +47,7 @@ class BackchannelMDP:
         self.state_space = np.reshape(grid, (5, -1))
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
-        self.action_space = np.array(["NEUTRAL",
+        self.action_space = np.array([["NEUTRAL",
                                       "THINKING",
                                       "CHATTY",
                                       "EXCLAIM",
@@ -58,7 +58,7 @@ class BackchannelMDP:
                                       "SLOW_NOD",
                                       "CURT_NOD",
                                       "REPETITIVE_NOD",
-                                      "HORIZONAL_NOD"])
+                                      "HORIZONAL_NOD"]]).T
         
         self.action_space_mapping = np.array([[ 0.0,  0.0,   5.0,  0.0,  0.0],    # Neutrual
                                               [ 0.0,  0.5, -15.0, 30.0,  1.0],    # Thinking
@@ -86,11 +86,11 @@ class BackchannelMDP:
         self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
         self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
         
-        for i in range(self.action_space_size):
+        for action_idx in range(self.action_space_size):
             for j in range(self.state_space_size):
                 for k in range(self.state_space_size):
-                    self.P[i, j ,k] = self._calculate_transition(self, self.action_space[i], self.state_space[:, j], self.state_space[:, k])
-                    self.R[i, j, k] = self._calculate_reward(self, self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j], self.state_space[:, k])
+                    self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j], self.state_space[:, k])
 
         # random shit to make the code work
         self.callback = callback
@@ -100,7 +100,7 @@ class BackchannelMDP:
         # TODO: Wrap all of this into a while loop conditioned on the self.running boolean
         
         # take in measurements and convert to state
-        self._measurements_to_state(self, self.measurements)
+        self._measurements_to_state(self.measurements)
         
         # Apply MDP to return optimal policy
         vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9)
@@ -129,8 +129,9 @@ class BackchannelMDP:
         self.measurements[0:4] = face_measurements
     
     # takes in speech measurements and applies them to self.measurements  
-    def set_speech_measurements(self, speech_measurements):
-        self.measurements[4:] = speech_measurements
+    def set_speech_measurements(self, speech_measurement):
+        self.measurements[3:7] = self.measurements[4:8]
+        self.measurements[8] = speech_measurement
         
     # given a set of possible bins, place x into the nearest bin and return that bin's index
     def _quantize(self, x, bins):
@@ -184,7 +185,7 @@ class BackchannelMDP:
     def _calculate_transition(self, action, initial_state, end_state):
         probability = 0.0
         
-        action_characteristics = self.action_space_mapping(action)
+        action_characteristics = self.action_space_mapping[:,action] #pull a column of the action space mapping
         
         state_transition_magnitude = np.inner(initial_state, end_state)
         probability += 1.0/state_transition_magnitude
@@ -200,7 +201,7 @@ class BackchannelMDP:
     def _calculate_reward(self, action, initial_state, end_state):
         reward = 0.0
         
-        action_characteristics = self.action_space_mapping(action)
+        action_characteristics = self.action_space_mapping[:,action] #pull a column of the action space mapping
         
         
         
