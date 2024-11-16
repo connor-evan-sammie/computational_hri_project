@@ -70,8 +70,8 @@ class BackchannelMDP:
                                               [ 0.5,  0.0,   5.0,  0.0,  0.0],    # Affirm_nod
                                               [ 0.0, -0.5,   5.0,  0.0,  1.0],    # Slow_nod
                                               [ 0.5,  0.5,   5.0,  0.0,  1.0],    # Curt_nod
-                                              [ 0.5,  1.0,   5.0,  0.0,  1.0]
-                                              [-0.5, -0.5, -0.15, -30.0, 1.0]]).T # Repetitive_nod
+                                              [ 0.5,  1.0,   5.0,  0.0,  1.0],    # Repetitive_nod
+                                              [-0.5, -0.5, -0.15, -30.0, 1.0]]).T # Horizontal_nod
         
         
         # current_state represents the column index of the current state in the context of state_space
