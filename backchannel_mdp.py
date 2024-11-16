@@ -47,18 +47,18 @@ class BackchannelMDP:
         self.state_space = np.reshape(grid, (5, -1))
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
-        self.action_space = np.array([["NEUTRAL",
-                                      "THINKING",
-                                      "CHATTY",
-                                      "EXCLAIM",
-                                      "INQUIRE",
-                                      "SAD",
-                                      "LIGHTBULB",
-                                      "AFFIRM_NOD",
-                                      "SLOW_NOD",
-                                      "CURT_NOD",
-                                      "REPETITIVE_NOD",
-                                      "HORIZONAL_NOD"]]).T
+        self.action_space = np.array([["neutral",
+                                      "thinking",
+                                      "chatty",
+                                      "exclaim",
+                                      "inquire",
+                                      "sigh",
+                                      "lightbuilb",
+                                      "affirmative_nod",
+                                      "slow_nod",
+                                      "curt_nod",
+                                      "repetitive_nod",
+                                      "horizontal_nod"]]).T
         
         self.action_space_mapping = np.array([[ 0.0,  0.0,   5.0,  0.0,  0.0],    # Neutrual
                                               [ 0.0,  0.5, -15.0, 30.0,  1.0],    # Thinking
