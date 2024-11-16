@@ -1,8 +1,5 @@
 import pyaudio
 import wave
-import pickle
-import 
-
 #import pickle
 
 # Settings for the audio recording
@@ -40,6 +37,3 @@ with wave.open(OUTPUT_FILENAME, 'wb') as wf:
     wf.writeframes(b''.join(frames))
 
 print(f"File saved as {OUTPUT_FILENAME}")
-
-
-
