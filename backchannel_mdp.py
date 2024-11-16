@@ -47,8 +47,7 @@ class BackchannelMDP:
         self.state_space = np.reshape(grid, (5, -1))
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
-        self.action_space = np.array(["NULL",
-                                      "NEUTRAL,",
+        self.action_space = np.array(["NEUTRAL",
                                       "THINKING",
                                       "CHATTY",
                                       "EXCLAIM",
@@ -59,6 +58,11 @@ class BackchannelMDP:
                                       "SLOW_NOD",
                                       "CURT_NOD",
                                       "REPETITIVE_NOD"])
+        
+        self.action_space_mapping = np.array([[0.0, 0.0, 0.0],
+                                              [4, 5, 6]])
+        
+        
         
         # current_state represents the column index of the current state in the context of state_space
         self.current_state = 0
@@ -75,8 +79,8 @@ class BackchannelMDP:
         for i in range(self.action_space_size):
             for j in range(self.state_space_size):
                 for k in range(self.state_space_size):
-                    self.P = _calculate_transition(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
-                    self.R = _calculate_reward(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.P = self._calculate_transition(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.R = self._calculate_reward(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
 
         # random shit to make the code work
         self.callback = callback
@@ -86,7 +90,7 @@ class BackchannelMDP:
         # TODO: Wrap all of this into a while loop conditioned on the self.running boolean
         
         # take in measurements and convert to state
-        _measurements_to_state(self.measurements)
+        self._measurements_to_state(self, self.measurements)
         
         # Apply MDP to return optimal policy
         vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9)
