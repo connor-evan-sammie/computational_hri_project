@@ -50,33 +50,24 @@ class FaceHandler():
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 valence, arousal, emotions_detected = self.detector.run(img)
                 try:
-                    roll, pitch, yaw = self.pose_estimator.pose_from_image(img)
-                    pose = [roll, pitch, yaw]
+                    yaw, pitch, roll = self.pose_estimator.pose_from_image(img)
                 except ValueError:
-                    pose = []
-                self.callback(valence, arousal, emotions_detected, pose)
+                    print("error!")
+                    continue
+                if len(valence) == 0 or len(arousal) == 0:
+                    continue
+                face_measurements = np.array([[valence[0], arousal[0], pitch, yaw]]).T
+                self.callback(face_measurements)
         cv2.VideoCapture(0).release()
 
 if __name__ == "__main__":
-    poses = []
-    def example_callback(valence, arousal, emotions_detected, pose):
-        if len(pose) > 0:
-            poses.append(pose)
-        print(f"Valences: {valence}, Arousals: {arousal}, Emotions: {emotions_detected}, Pose: {pose}")
+    def example_callback(face_measurements):
+        #print(face_measurements)
+        print(f"Valence: {face_measurements[0]}, Arousal: {face_measurements[1]}, Pitch: {face_measurements[2]}, Pose: {face_measurements[3]}")
 
     emotions = FaceHandler(example_callback)
     emotions.start()
-    time.sleep(120)
+    time.sleep(10)
     emotions.stop()
-    poses = np.array(poses)
-    print(poses)
-    plt.plot(poses)
-    print(f"Roll min: {np.min(poses[:, 0])}")
-    print(f"Roll max: {np.max(poses[:, 0])}")
-    print(f"Pitch min: {np.min(poses[:, 1])}")
-    print(f"Pitch max: {np.max(poses[:, 1])}")
-    print(f"Yaw min: {np.min(poses[:, 2])}")
-    print(f"Yaw max: {np.max(poses[:, 2])}")
-    plt.legend(["roll", "pitch", "yaw"])
-    plt.show()
+    
 
