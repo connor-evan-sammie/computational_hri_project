@@ -7,15 +7,11 @@ if platform.system() == "Windows":
 
 #Left, right, yaw, pitch
 neutral_coords = np.array([0, 0, 0, 0])
-talk1_coords = np.array([150, 150, 0, 10])
-talk2_coords = np.array([130, 130, 0, -10])
-talk3_coords = np.array([150, 130, 0, 10])
-talk4_coords = np.array([130, 150, 0, -10])
 idle_coords = np.array([[-30, 150], [-30, 150], [-45, 45], [-30, 40]])
 
 thinking1_coords = np.array([120, -10, -30, -15])
 thinking2_coords = np.array([-10, 120, 30, -15])
-ahah1_coords = np.array([45, 45, 10, 15])
+exclaim_coords = np.array([45, 45, 10, 15])
 sad1_coords = np.array([-15, -15, 10, -20])
 
 T = 0.5
@@ -44,26 +40,6 @@ def toSimplePose(body, pose, N, T):
         body.setPose(points[i, :])
         time.sleep(dt)
 
-def talk1(body, N=N, T=T):
-    print("Going to talk 1...", flush=True)
-    toSimplePose(body, talk1_coords, N, T)
-
-def talk2(body, N=N, T=T):
-    print("Going to talk 2...", flush=True)
-    toSimplePose(body, talk2_coords, N, T)
-
-def talk3(body, N=N, T=T):
-    print("Going to talk 3...", flush=True)
-    toSimplePose(body, talk3_coords, N, T)
-
-def talk4(body, N=N, T=T):
-    print("Going to talk 4...", flush=True)
-    toSimplePose(body, talk4_coords, N, T)
-
-def rand(body, N=N, T=T):
-    print("Going to random idle...", flush=True)
-    toSimplePose(body, idle_coords, N, 1.5*np.random.rand()+0.1)
-
 def thinking(body):
     print("Going to thinking...")
     which = np.random.randint(0, 2)
@@ -72,10 +48,54 @@ def thinking(body):
     elif which == 1:
         toSimplePose(body, thinking2_coords, N, T)
 
-def ahah1(body):
+def exclaim(body):
     print("Going to ahah...")
-    toSimplePose(body, ahah1_coords, N=N, T=0.25)
+    toSimplePose(body, exclaim_coords, N=N, T=0.25)
 
+def chatty(body):
+    neutral(body)
+    chatty_t = 0.25
+    toSimplePose(body, [-30,30, 10, 0], N=N, T=chatty_t)
+    toSimplePose(body, [30,-30, -5, 0], N=N, T=chatty_t)
+    toSimplePose(body, [-30,30, 10, 0], N=N, T=chatty_t)
+    toSimplePose(body, [30,-30, -5, 0], N=N, T=chatty_t)
+
+def inquire(body):
+    inquire_t = 1
+    toSimplePose(body, [-30,30, 20, 0], N=N, T=inquire_t)
+
+def sigh(body): 
+    curr_pose = body.getPose()
+    toSimplePose(body, np.array([10, 10, 5, 0]) + curr_pose, N=N, T=0.5)
+    toSimplePose(body, [-30, -30, -15, 0], N=N, T=1)
+
+def lightbulb(body):
+    toSimplePose(body, [90, 0, 10, 0], N=N, T=0.25)
+
+def affirmative_nod(body):
+    toSimplePose(body, [0, 0, -30, 0], N=N, T=0.5)
+    neutral(body)
+
+def slow_nod(body):
+    toSimplePose(body, [0, 0, -30, 0], N=N, T= 1)
+    neutral(body)
+
+def curt_nod(body):
+    toSimplePose(body, [0, 0, -30, 0], N=N, T= 0.25)
+    neutral(body)
+
+def repetitive_nod(body):
+    affirmative_nod(body)
+    affirmative_nod(body)
+    affirmative_nod(body)
+
+def horizontal_nod(body):
+    curr_pose = body.getPose()
+    toSimplePose(body, np.array([0, 0, -5, 30]) + curr_pose, N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -10, -20]) + curr_pose, N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -15, 10]) + curr_pose, N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -20, 0]) + curr_pose, N=N, T= 0.25)
+    
 def snap_neutral(body):
     print("Going to snap_neutral...")
     body.setPose(neutral_coords)
