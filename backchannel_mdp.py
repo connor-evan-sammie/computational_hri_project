@@ -51,6 +51,7 @@ class BackchannelMDP:
         
         # current_state represents the column index of the current state in the context of state_space
         self.current_state = 0
+        self.optimal_action = 0
         
         # MDP values
         self.action_space_size = self.action_space.shape[1]
@@ -59,24 +60,31 @@ class BackchannelMDP:
         # TODO: Make these work
         self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
         self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
+        
+        for i in range(self.action_space_size):
+            for j in range(self.state_space_size):
+                for k in range(self.state_space_size):
+                    self.P = _calculate_transition(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
+                    self.R = _calculate_reward(self.action_space[i], self.state_space[:, j], self.state_space[:, k])
 
         # random shit to make the code work
         self.callback = callback
         self.running = False
         
     def _run_helper(self):
-        
-        # Take in measurements
-        # Turn into state
-        # Apply MDP to return optimal policy
-        # Apply optimal policy to current state to obtain optimal action
-        # Publish optimal action
         # TODO: Wrap all of this into a while loop conditioned on the self.running boolean
         
+        # take in measurements and convert to state
+        _measurements_to_state(self.measurements)
+        
+        # Apply MDP to return optimal policy
         vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9)
         vi.run()
         
-        self.callback()
+        # Apply optimal policy to current state to obtain optimal action
+        self.optimal_action = vi.policy[self.current_state]
+        
+        # TODO: Publish optimal action
         
         
     def start(self):
@@ -147,6 +155,24 @@ class BackchannelMDP:
         n_ifl = self.ifl_states.shape[0]
         
         self.current_state = ifl_idx + n_ifl*yaw_idx + n_ifl*n_yaw*pit_idx + n_ifl*n_yaw*n_pit*aro_idx + n_ifl*n_yaw*n_pit*n_aro*val_idx
+        
+    def _calculate_transition(action, initial_state, end_state):
+        probability = 0.0
+        
+        # if states are close assign high probability
+        # if states are far assign low probability
+        
+        return probability
+    
+    def _calculate_reward(action, initial_state, end_state):
+        reward = 0.0
+        
+        # given changing conditions, add or subtract values from reward
+        # increased valence --> good, more rewards
+        
+        
+        
+        return reward
 
 if __name__ == "__main__":
     def example_callback(action):
