@@ -97,3 +97,9 @@ class BackchannelMDP:
     def _measurements_to_state(self, measurement):
     
         self.current_state = 0
+        
+    def _state_to_action_probability(state, action):
+        pass
+    
+    def _action_to_state_reward(state, action):
+        pass
