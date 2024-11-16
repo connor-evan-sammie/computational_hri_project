@@ -100,7 +100,7 @@ class BackchannelMDP:
     def _quantize(self, x, bins):
         if x < bins[0]:
             return 0
-        for i in range(bins.shape-1):
+        for i in range(bins.shape[0]-1):
             midpoint = (bins[i]+bins[i+1])/2
             if bins[i] <= x < bins[i+1] and x <= midpoint:
                 return i
@@ -110,10 +110,14 @@ class BackchannelMDP:
     
     # Takes in a series of pitches ordered chronologically and returns the concavity (-1, 0, or 1) based on a threshold limit
     def _get_inflection_idx(self, pitches):
-        xs = np.arange(0, pitches.shape)
+        xs = np.arange(0, pitches.shape[0])
         fit = np.polyfit(xs, pitches, 2)
         quadratic_term = fit[0]
+        linear_term = fit[1]
         concavity_limit = 0.1
+
+        if abs(quadratic_term) < 0.01:
+            return 1 if linear_term > concavity_limit else (-1 if linear_term < -concavity_limit else 0)
         if quadratic_term < -concavity_limit:
             ifl = 0
         elif -concavity_limit <= quadratic_term <= concavity_limit:
@@ -138,3 +142,15 @@ class BackchannelMDP:
         n_ifl = self.ifl_states.shape[0]
         
         self.current_state = ifl_idx + n_ifl*yaw_idx + n_ifl*n_yaw*pit_idx + n_ifl*n_yaw*n_pit*aro_idx + n_ifl*n_yaw*n_pit*n_aro*val_idx
+
+if __name__ == "__main__":
+    def example_callback(action):
+        print(action)
+    mdp = BackchannelMDP(example_callback)
+    
+    print("TESTING _measurements_to_state()")
+    measurement = np.array([[0.4, -0.6, 44, 1, 0, 4, 5, 4, 0]]).T
+    mdp._measurements_to_state(measurement)
+    print(f"Measurement (transposed):\t{measurement.T}")
+    print(f"mdp.current_state (index):\t   {mdp.current_state}")
+    print(f"State:\t\t\t\t {mdp.state_space[:, mdp.current_state]}")
