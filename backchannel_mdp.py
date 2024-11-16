@@ -4,6 +4,7 @@ import wave
 import time
 import signal
 import sys
+from matplotlib import pyplot as plt
 
 import numpy as np
 import mdptoolbox as mdp_tb
@@ -17,11 +18,11 @@ class BackchannelMDP:
         #           M1 = Activation 
         #           M2 = Roll
         #           M3 = Pitch
-        #     M =   M4 = p1 
+        #     M =   M4 = p1 (oldest)
         #           M5 = p2
         #           M6 = p3
         #           M7 = p4
-        #           M8 = p5
+        #           M8 = p5 (newest)
         #           
         # =============================================
         self.measurements = np.zeros((9,1))
@@ -58,18 +59,19 @@ class BackchannelMDP:
         # TODO: Make these work
         self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
         self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
-        
+
         # random shit to make the code work
         self.callback = callback
         self.running = False
         
-    def _run(self):
+    def _run_helper(self):
         
         # Take in measurements
         # Turn into state
         # Apply MDP to return optimal policy
         # Apply optimal policy to current state to obtain optimal action
         # Publish optimal action
+        # TODO: Wrap all of this into a while loop conditioned on the self.running boolean
         
         vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9)
         vi.run()
@@ -97,6 +99,7 @@ class BackchannelMDP:
     def set_speech_measurements(self, speech_measurements):
         self.measurements[4:] = speech_measurements
         
+    # given a set of possible bins, place x into the nearest bin and return that bin's index
     def _quantize(self, x, bins):
         if x < bins[0]:
             return 0
@@ -115,15 +118,17 @@ class BackchannelMDP:
         quadratic_term = fit[0]
         linear_term = fit[1]
         concavity_limit = 0.1
-
+        
+        # If the fit is nearly linear, follow the linear slope instead
         if abs(quadratic_term) < 0.01:
-            return 1 if linear_term > concavity_limit else (-1 if linear_term < -concavity_limit else 0)
+            return 2 if linear_term > concavity_limit else (0 if linear_term < -concavity_limit else 1)
+        
         if quadratic_term < -concavity_limit:
-            ifl = 0
+            ifl = 0 # Concave down
         elif -concavity_limit <= quadratic_term <= concavity_limit:
-            ifl = 1
+            ifl = 1 # Neutral
         else:
-            ifl = 2
+            ifl = 2 # Concave up
         return ifl
     
     # measurement is a column vector float of size 9
@@ -134,7 +139,7 @@ class BackchannelMDP:
         aro_idx = self._quantize(measurement[1], self.aro_states)
         pit_idx = self._quantize(measurement[2], self.pit_states)
         yaw_idx = self._quantize(measurement[3], self.yaw_states)
-        ifl_idx = self._get_inflection_idx(np.flip(measurement[4:]))
+        ifl_idx = self._get_inflection_idx(measurement[4:])
         
         n_aro = self.aro_states.shape[0]
         n_pit = self.pit_states.shape[0]
@@ -147,10 +152,15 @@ if __name__ == "__main__":
     def example_callback(action):
         print(action)
     mdp = BackchannelMDP(example_callback)
-    
-    print("TESTING _measurements_to_state()")
-    measurement = np.array([[0.4, -0.6, 44, 1, 0, 4, 5, 4, 0]]).T
+
+    print("TESTING mdp._measurements_to_state()")
+    measurement = np.array([[0.4, -0.6, 44, 1, 70, 80, 90, 100, 110]]).T
     mdp._measurements_to_state(measurement)
-    print(f"Measurement (transposed):\t{measurement.T}")
-    print(f"mdp.current_state (index):\t   {mdp.current_state}")
-    print(f"State:\t\t\t\t {mdp.state_space[:, mdp.current_state]}")
+    print(f"Measurement:\t\t   {measurement.T}^T")
+    print(f"mdp.current_state (index):    {mdp.current_state}")
+    print(f"State:\t\t\t    {mdp.state_space[:, mdp.current_state]}")
+
+    # This test will apply once the MDP has been implemented further
+    #mdp.start()
+    #time.sleep(1)
+    #mdp.stop()
