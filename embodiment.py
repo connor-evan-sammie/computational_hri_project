@@ -1,30 +1,26 @@
 import os
 import platform
+import time
 
-class Servo():
-    def __init__(self, *__, **_):
-        pass
+# send_servo_positions.py
+import socket
 
-if platform.system() == "Linux":
-    from gpiozero import AngularServo as Servo
-else:
-    print("Non-RPi machine detected! Disabling servo capabilities.")
+# Replace with the IP address of your Raspberry Pi
+HOST = '67.194.42.62'
+PORT = 65432
 
 class Embodiment:
     def __init__(self):
         os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
-        self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        self.headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        #self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        #self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        #self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        #self.headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
         
         self.toNeutral()
     
     def toNeutral(self):
-        self.setLeftWing(0)
-        self.setRightWing(0)
-        self.setHeadPitch(0)
-        self.setHeadYaw(0)
+        self.setPose([0, 0, 0, 0])
 
     def setLeftWing(self, degrees):
         if degrees > 150:
@@ -32,7 +28,6 @@ class Embodiment:
         if degrees < -30:
             degrees = -30
         self.leftWingDegrees = degrees
-        self.leftWing.angle = (self.leftWingDegrees)
 
     def setRightWing(self, degrees):
         if degrees > 150:
@@ -40,7 +35,6 @@ class Embodiment:
         if degrees < -30:
             degrees = -30
         self.rightWingDegrees = degrees
-        self.rightWing.angle = (self.rightWingDegrees) 
 
     def setHeadPitch(self, degrees):
         if degrees > 40:
@@ -48,7 +42,6 @@ class Embodiment:
         if degrees < -20:
             degrees = -20
         self.headPitchDegrees = degrees
-        self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
         if degrees > 80:
@@ -56,13 +49,22 @@ class Embodiment:
         if degrees < -100:
             degrees = -100
         self.headYawDegrees = degrees
-        self.headYaw.angle = (self.headYawDegrees)
 
     def setPose(self, pose):
         self.setLeftWing(pose[0])
         self.setRightWing(pose[1])
         self.setHeadYaw(pose[2])
         self.setHeadPitch(pose[3])
+        self.send_servo_positions()
+
+    def send_servo_positions(self):
+        positions = self.getPose()
+        data = ','.join(map(str, positions))
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            s.sendall(data.encode())
+            #print(f'Sent servo positions: {positions}')
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees
@@ -73,23 +75,29 @@ class Embodiment:
 
 if __name__ == "__main__":
     duck = Embodiment()
-    cmd = ""
-    while cmd != "q":
-        if cmd != "":
-            args = cmd.split()
-            if len(args) == 2:
-                args[1] = int(args[1])
-                if args[0] == "l":
-                    duck.setLeftWing(args[1])
-                elif args[0] == "r":
-                    duck.setRightWing(args[1])
-                elif args[0] == "p":
-                    duck.setHeadPitch(args[1])
-                elif args[0] == "y":
-                    duck.setHeadYaw(args[1])
-                else:
-                    print(f"Invalid command: {cmd}")
-            else:
-                print(f"Invalid command: {cmd}")
-        print(f"l: {duck.getLeftWing()}, r: {duck.getRightWing()}, y: {duck.getHeadYaw()}, p: {duck.getHeadPitch()}")
-        cmd = input()
+    duck.setPose([0, 0, 0, 0])
+    time.sleep(1)
+    duck.setPose([90, 0, 0, 0])
+    time.sleep(1)
+    duck.setPose([0, 90, 0, 0])
+    time.sleep(1)
+    duck.setPose([0, 0, 0, 0])
+    #while cmd != "q":
+    #    if cmd != "":
+    #        args = cmd.split()
+    #        if len(args) == 2:
+    #            args[1] = int(args[1])
+    #            if args[0] == "l":
+    #                duck.setLeftWing(args[1])
+    #            elif args[0] == "r":
+    #                duck.setRightWing(args[1])
+    #            elif args[0] == "p":
+    #                duck.setHeadPitch(args[1])
+    #            elif args[0] == "y":
+    #                duck.setHeadYaw(args[1])
+    #            else:
+    #                print(f"Invalid command: {cmd}")
+    #        else:
+    #            print(f"Invalid command: {cmd}")
+    #    print(f"l: {duck.getLeftWing()}, r: {duck.getRightWing()}, y: {duck.getHeadYaw()}, p: {duck.getHeadPitch()}")
+    #    cmd = input()

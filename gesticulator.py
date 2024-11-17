@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import scipy
+import scipy.interpolate
 import platform
 if platform.system() == "Windows":
     from matplotlib import pyplot as plt
@@ -15,7 +15,7 @@ exclaim_coords = np.array([45, 45, 10, 15])
 sad1_coords = np.array([-15, -15, 10, -20])
 
 T = 0.5
-N = 100
+N = 15
 
 #dt = 0.04
 dt = T/N
@@ -27,13 +27,9 @@ def spline(p1, pf, N, type="cubic"):
 def toSimplePose(body, pose, N, T):
     dt = T/N
     curr_pose = body.getPose()
-    if len(pose.shape) > 1:
-        new_pose = np.zeros((4,))
-        for i in range(4):
-            new_pose[i] = np.random.randint(pose[i, 0], pose[i, 1]+1, None)
-        print(f"Random coords: {new_pose}")
-    else:
-        new_pose = pose
+    new_pose = pose
+    if type(pose) == type([]):
+        new_pose = np.array(pose)
     points = spline(curr_pose, new_pose, N)
     for i in range(points.shape[0]):
         #print(points[i, :])
@@ -92,9 +88,9 @@ def repetitive_nod(body):
 def horizontal_nod(body):
     curr_pose = body.getPose()
     toSimplePose(body, np.array([0, 0, -5, 30]) + curr_pose, N=N, T= 0.25)
-    toSimplePose(body, np.array([0, 0, -10, -20]) + curr_pose, N=N, T= 0.25)
-    toSimplePose(body, np.array([0, 0, -15, 10]) + curr_pose, N=N, T= 0.25)
-    toSimplePose(body, np.array([0, 0, -20, 0]) + curr_pose, N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -10, -20]), N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -15, 10]), N=N, T= 0.25)
+    toSimplePose(body, np.array([0, 0, -20, 0]), N=N, T= 0.25)
     
 def snap_neutral(body):
     print("Going to snap_neutral...")

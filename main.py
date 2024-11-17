@@ -29,7 +29,9 @@ if __name__ == "__main__":
     face_handler.start()
     mdp.start()
     duck.start()
-    time.sleep(60)
+
+    input()
+
     pitch_detector.stop()
     face_handler.stop()
     mdp.stop()

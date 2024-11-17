@@ -48,17 +48,21 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
-    #for i in range(10):
-    #    gh.addToQueue("thinking")
-    #gh.addToQueue("thinking")
-    #time.sleep(2)
-    #gh.addToQueue("ahah1")
-    #time.sleep(2)
-    for i in range(60):
-        gh.addToQueue("rand")
-    gh.addToQueue("neutral")
-    while not gh.isQueueEmpty():
-        time.sleep(0.05)
+    gs = ["neutral",
+            "thinking",
+            "chatty",
+            "exclaim",
+            "inquire",
+            "sigh",
+            "lightbulb",
+            "affirmative_nod",
+            "slow_nod",
+            "curt_nod",
+            "repetitive_nod",
+            "horizontal_nod"]
+    for i in range(len(gs)):
+        gh.addToQueue(gs[i])
+    time.sleep(60)
     gh.stop()
 
 #2p 3y 14l 15r

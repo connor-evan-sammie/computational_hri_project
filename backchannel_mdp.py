@@ -5,6 +5,7 @@ import time
 import signal
 import sys
 from matplotlib import pyplot as plt
+import os.path
 
 import numpy as np
 import mdptoolbox as mdp_tb
@@ -85,41 +86,34 @@ class BackchannelMDP:
         # MDP values
         self.action_space_size = self.action_space.shape[1]
         self.state_space_size = self.state_space.shape[1]
-        
-        # TODO: Make these work
-        self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
-        self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
 
-        #self.P = np.random.rand(self.P.shape[0], self.P.shape[1], self.P.shape[2])
-        #self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
-        #self.P[:, :, 0] = 1
-        #self.R[:, :, 0] = 1
+        if os.path.isfile("reward_matrix.npy") and os.path.isfile("transition_matrix.npy"):
+            self.P = np.load("transition_matrix.npy")
+            self.R = np.load("reward_matrix.npy")
+        else:
+            # TODO: Make these work
+            self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
+            self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
+            
+            for action_idx in range(self.action_space_size):
+                print(action_idx)
+                for j in range(self.state_space_size):
+                    for k in range(self.state_space_size):
+                        self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
+                        self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
+            
+            self.P = self.P-np.min(self.P, 2)[:, :, None]
 
-        #self.P[self.P < 0.99] = 0
-        #self.R[self.R < 0.99] = 0
+            temp = np.sum(self.P, 2)
+            idxs_i, idxs_j = np.where(temp < 0.000001)
+            self.P[idxs_i, idxs_j, :] = 1
+            self.P = self.P/np.sum(self.P, 2)[:, :, None]
 
-        #self.P = self.P/np.sum(self.P, 2)[:, :, None]
-       # self.R = self.R/np.sum(self.R, 2)[:, :, None]
-        
-        for action_idx in range(self.action_space_size):
-            print(action_idx)
-            for j in range(self.state_space_size):
-                for k in range(self.state_space_size):
-                    self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
-                    self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
-        
-        self.P = self.P-np.min(self.P, 2)[:, :, None]
-
-        temp = np.sum(self.P, 2)
-        idxs_i, idxs_j = np.where(temp < 0.000001)
-        self.P[idxs_i, idxs_j, :] = 1
-        self.P = self.P/np.sum(self.P, 2)[:, :, None]
-
-        #self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
-        #self.R[:, :, 0] = 1
-        #self.R = self.R/np.sum(self.R, 2)[:, :, None]
-        np.save("transition_matrix", self.P)
-        np.save("reward_matrix", self.R)
+            self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
+            self.R[:, :, 0] = 1
+            self.R = self.R/np.sum(self.R, 2)[:, :, None]
+            np.save("transition_matrix", self.P)
+            np.save("reward_matrix", self.R)
         # random shit to make the code work
         self.callback = callback
         self.running = False
@@ -141,7 +135,7 @@ class BackchannelMDP:
             self._measurements_to_state(self.measurements)
             p = vi.policy[self.current_state]
             self.callback(self.action_space[0, p])
-            time.sleep(0.05)
+            time.sleep(2)
         # TODO: Publish optimal action
         
         
