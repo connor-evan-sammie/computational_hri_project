@@ -61,10 +61,13 @@ class Embodiment:
         positions = self.getPose()
         data = ','.join(map(str, positions))
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((HOST, PORT))
-            s.sendall(data.encode())
-            #print(f'Sent servo positions: {positions}')
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((HOST, PORT))
+                s.sendall(data.encode())
+                #print(f'Sent servo positions: {positions}')
+        except ConnectionRefusedError:
+            print("Could not connect to the duck")
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees
