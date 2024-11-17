@@ -1,13 +1,13 @@
 # servo_server.py
 import socket
-from gpiozero import AngularServo
+from gpiozero import AngularServo as Servo
 from time import sleep
 
 # Set up the GPIO pins for the servos
-servo1 = AngularServo(17, min_angle=-90, max_angle=90)
-servo2 = AngularServo(18, min_angle=-90, max_angle=90)
-servo3 = AngularServo(27, min_angle=-90, max_angle=90)
-servo4 = AngularServo(22, min_angle=-90, max_angle=90)
+leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
+rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
+headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
+headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
 
 # Set up the server
 HOST = '0.0.0.0'  # Listen on all available interfaces
@@ -32,10 +32,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 try:
                     angles = list(map(float, data.decode().split(',')))
                     if len(angles) == 4:
-                        servo1.angle = angles[0]
-                        servo2.angle = angles[1]
-                        servo3.angle = angles[2]
-                        servo4.angle = angles[3]
+                        leftWing.angle = angles[0]
+                        rightWing.angle = angles[1]
+                        headPitch.angle = angles[2]
+                        headYaw.angle = angles[3]
 
                         print(f'Set angles to: {angles}')
                     else:
