@@ -45,6 +45,10 @@ class BackchannelMDP:
         self.ifl_states = np.linspace(-1, 1, 3)
         grid = np.meshgrid(self.val_states, self.aro_states, self.pit_states, self.yaw_states, self.ifl_states, indexing='ij')
         self.state_space = np.reshape(grid, (5, -1))
+
+        self.W = np.eye(5)
+        self.W[2:, 2:] = 0
+        self.utopia = np.array([[0.5, 0.5, 0, 0, 0]]).T
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
         self.action_space = np.array([["neutral",
@@ -58,7 +62,7 @@ class BackchannelMDP:
                                       "slow_nod",
                                       "curt_nod",
                                       "repetitive_nod",
-                                      "horizontal_nod"]]).T
+                                      "horizontal_nod"]])
         
         self.action_space_mapping = np.array([[ 0.0,  0.0,   5.0,  0.0,  0.0],    # Neutrual
                                               [ 0.0,  0.5, -15.0, 30.0,  1.0],    # Thinking
@@ -85,13 +89,38 @@ class BackchannelMDP:
         # TODO: Make these work
         self.P = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
         self.R = np.zeros((self.action_space_size, self.state_space_size, self.state_space_size))
+
+        #self.P = np.random.rand(self.P.shape[0], self.P.shape[1], self.P.shape[2])
+        #self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
+        #self.P[:, :, 0] = 1
+        #self.R[:, :, 0] = 1
+
+        #self.P[self.P < 0.99] = 0
+        #self.R[self.R < 0.99] = 0
+
+        #self.P = self.P/np.sum(self.P, 2)[:, :, None]
+       # self.R = self.R/np.sum(self.R, 2)[:, :, None]
         
         for action_idx in range(self.action_space_size):
+            print(action_idx)
             for j in range(self.state_space_size):
                 for k in range(self.state_space_size):
-                    self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j], self.state_space[:, k])
-                    self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j], self.state_space[:, k])
+                    self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
+                    #self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
 
+        
+
+        self.P = self.P-np.min(self.P, 2)[:, :, None]
+
+        temp = np.sum(self.P, 2)
+        idxs_i, idxs_j = np.where(temp < 0.000001)
+        self.P[idxs_i, idxs_j, :] = 1
+        self.P = self.P/np.sum(self.P, 2)[:, :, None]
+
+        self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
+        self.R[:, :, 0] = 1
+        self.R = self.R/np.sum(self.R, 2)[:, :, None]
+        
         # random shit to make the code work
         self.callback = callback
         self.running = False
@@ -103,12 +132,15 @@ class BackchannelMDP:
         self._measurements_to_state(self.measurements)
         
         # Apply MDP to return optimal policy
-        vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9)
+        vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9, epsilon=0.01)
+        vi.setVerbose()
         vi.run()
-        
+        print(np.sum(vi.V))
+        print(f"Iterations: {vi.iter}")
+
         # Apply optimal policy to current state to obtain optimal action
         self.optimal_action = vi.policy[self.current_state]
-        
+        self.callback(self.optimal_action)
         # TODO: Publish optimal action
         
         
@@ -183,19 +215,24 @@ class BackchannelMDP:
         self.current_state = ifl_idx + n_ifl*yaw_idx + n_ifl*n_yaw*pit_idx + n_ifl*n_yaw*n_pit*aro_idx + n_ifl*n_yaw*n_pit*n_aro*val_idx
         
     def _calculate_transition(self, action, initial_state, end_state):
-        probability = 0.0
+        #probability = 0.0
+        #print(action)
+        action_characteristics = self.action_space_mapping[:,action, None] #pull a column of the action space mapping
+        #print(end_state)
+        #print(action_characteristics)
+        #state_transition_magnitude = np.inner(initial_state, end_state)
         
-        action_characteristics = self.action_space_mapping[:,action] #pull a column of the action space mapping
+        #probability += 1.0/state_transition_magnitude
         
-        state_transition_magnitude = np.inner(initial_state, end_state)
-        probability += 1.0/state_transition_magnitude
-        
-        
+        temp1 = initial_state+np.inner(initial_state, action_characteristics)*self.utopia
+        probability = end_state[0, 0]*temp1[0, 0]+end_state[1, 0]*temp1[1, 0]
+        #probability = end_state.T@self.W@(initial_state+(initial_state.T@action_characteristics)*self.utopia)
         
         
         # if states are close assign high probability
         # if states are far assign low probability
-        
+        #print(probability)
+        #input()
         return probability
     
     def _calculate_reward(self, action, initial_state, end_state):
@@ -225,6 +262,6 @@ if __name__ == "__main__":
     print(f"State:\t\t\t    {mdp.state_space[:, mdp.current_state]}")
 
     # This test will apply once the MDP has been implemented further
-    #mdp.start()
-    #time.sleep(1)
-    #mdp.stop()
+    mdp.start()
+    time.sleep(90)
+    mdp.stop()
