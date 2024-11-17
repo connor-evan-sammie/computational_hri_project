@@ -9,6 +9,11 @@ rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, ma
 headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
 headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
 
+leftWing.angle = 0
+rightWing.angle = 0
+headPitch.angle = 0
+headYaw.angle = 0
+
 # Set up the server
 HOST = '0.0.0.0'  # Listen on all available interfaces
 PORT = 65432

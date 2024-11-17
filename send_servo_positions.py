@@ -15,5 +15,5 @@ def send_servo_positions(positions):
 
 if __name__ == "__main__":
     # Example servo positions to send
-    servo_positions = [-30, -45, 90, -90]
+    servo_positions = [0, 0, 0, 0]
     send_servo_positions(servo_positions)
