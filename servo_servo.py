@@ -31,6 +31,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # Assume the data is a comma-separated string of angles for the servos
                 try:
                     angles = list(map(float, data.decode().split(',')))
+                    print(angles)
                     if len(angles) == 4:
                         leftWing.angle = angles[0]
                         rightWing.angle = angles[1]
