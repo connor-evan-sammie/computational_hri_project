@@ -40,15 +40,15 @@ class BackchannelMDP:
         # state_space is a array of column vectors representing all possible current and future states
         self.val_states = np.linspace(-1, 1, 5)
         self.aro_states = np.linspace(-1, 1, 5)
-        self.pit_states = np.linspace(-35, 45, 5)
-        self.yaw_states = np.linspace(-30, 30, 3)
+        self.pit_states = np.linspace(-1, 1, 5) # -35, 45
+        self.yaw_states = np.linspace(-1, 1, 3) # -30, 30
         self.ifl_states = np.linspace(-1, 1, 3)
         grid = np.meshgrid(self.val_states, self.aro_states, self.pit_states, self.yaw_states, self.ifl_states, indexing='ij')
         self.state_space = np.reshape(grid, (5, -1))
 
         self.W = np.eye(5)
         self.W[2:, 2:] = 0
-        self.utopia = np.array([[0.5, 0.5, 0, 0, 0]]).T
+        self.utopia = np.array([[0, 0, 0, 0, 0]]).T
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
         self.action_space = np.array([["neutral",
@@ -64,18 +64,18 @@ class BackchannelMDP:
                                       "repetitive_nod",
                                       "horizontal_nod"]])
         
-        self.action_space_mapping = np.array([[ 0.0,  0.0,   5.0,  0.0,  0.0],    # Neutrual
-                                              [ 0.0,  0.5, -15.0, 30.0,  1.0],    # Thinking
-                                              [ 0.5,  0.5,  25.0,  0.0,  1.0],    # Chatty
-                                              [ 0.5,  1.0,  45.0,  0.0,  1.0],    # Exclaim
-                                              [ 0.0,  0.5,  25.0,  0.0,  1.0],    # Inquire
-                                              [-1.0,  0.5, -35.0,  0.0, -1.0],    # Sad
-                                              [ 1.0,  0.5,  25.0,  0.0,  1.0],    # Lightbulb
-                                              [ 0.5,  0.0,   5.0,  0.0,  0.0],    # Affirm_nod
-                                              [ 0.0, -0.5,   5.0,  0.0,  1.0],    # Slow_nod
-                                              [ 0.5,  0.5,   5.0,  0.0,  1.0],    # Curt_nod
-                                              [ 0.5,  1.0,   5.0,  0.0,  1.0],    # Repetitive_nod
-                                              [-0.5, -0.5, -0.15, -30.0, 1.0]]).T # Horizontal_nod
+        self.action_space_mapping = np.array([[ 0.0,  0.0,  0.0,  0.0,  0.0],    # 0 Neutrual *
+                                              [ 0.0,  0.5, -0.5,  1.0,  1.0],    # 1 Thinking *
+                                              [ 0.5,  0.5,  0.5,  0.0,  1.0],    # 2 Chatty
+                                              [ 0.5,  1.0,  1.0,  0.0,  1.0],    # 3 Exclaim *
+                                              [ 0.0,  0.5,  0.5,  0.0,  1.0],    # 4 Inquire
+                                              [-1.0,  0.5, -1.0,  0.0, -1.0],    # 5 Sad *
+                                              [ 1.0,  0.5,  0.5,  0.0,  1.0],    # 6 Lightbulb *
+                                              [ 0.5,  0.0,  0.0,  0.0,  0.0],    # 7 Affirm_nod *
+                                              [ 0.0, -0.5,  0.0,  0.0,  1.0],    # 8 Slow_nod *
+                                              [ 0.5,  0.5,  0.0,  0.0,  1.0],    # 9 Curt_nod
+                                              [ 0.5,  1.0,  0.0,  0.0,  1.0],    # 10 Repetitive_nod *
+                                              [-0.5, -0.5, -0.5, -1.0,  1.0]]).T # 11 Horizontal_nod *
         
         
         # current_state represents the column index of the current state in the context of state_space
@@ -106,10 +106,8 @@ class BackchannelMDP:
             for j in range(self.state_space_size):
                 for k in range(self.state_space_size):
                     self.P[action_idx, j ,k] = self._calculate_transition(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
-                    #self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
-
+                    self.R[action_idx, j, k] = self._calculate_reward(action_idx, self.state_space[:, j, None], self.state_space[:, k, None])
         
-
         self.P = self.P-np.min(self.P, 2)[:, :, None]
 
         temp = np.sum(self.P, 2)
@@ -117,30 +115,34 @@ class BackchannelMDP:
         self.P[idxs_i, idxs_j, :] = 1
         self.P = self.P/np.sum(self.P, 2)[:, :, None]
 
-        self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
-        self.R[:, :, 0] = 1
-        self.R = self.R/np.sum(self.R, 2)[:, :, None]
+        #self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
+        #self.R[:, :, 0] = 1
+        #self.R = self.R/np.sum(self.R, 2)[:, :, None]
         
         # random shit to make the code work
         self.callback = callback
         self.running = False
         
     def _run_helper(self):
-        # TODO: Wrap all of this into a while loop conditioned on the self.running boolean
         
         # take in measurements and convert to state
-        self._measurements_to_state(self.measurements)
+        #self._measurements_to_state(self.measurements)
         
         # Apply MDP to return optimal policy
-        vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9, epsilon=0.01)
+        vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9, epsilon=0.1)
         vi.setVerbose()
         vi.run()
-        print(np.sum(vi.V))
-        print(f"Iterations: {vi.iter}")
 
         # Apply optimal policy to current state to obtain optimal action
         self.optimal_action = vi.policy[self.current_state]
-        self.callback(self.optimal_action)
+
+        while self.running:
+            self._measurements_to_state(self.measurements)
+            print(vi.policy)
+            print(self.current_state)
+            p = vi.policy[self.current_state]
+            self.callback(self.action_space[0, p])
+            self.running = False
         # TODO: Publish optimal action
         
         
@@ -159,6 +161,9 @@ class BackchannelMDP:
     # takes in face measurements and applies them to self.measurements    
     def set_face_measurements(self, face_measurements):
         self.measurements[0:4] = face_measurements
+        # ###########################################################################################
+        self.measurements[2] = face_measurements[2]/40.0-0.125
+        self.measurements[3] = face_measurements[3]/30.0
     
     # takes in speech measurements and applies them to self.measurements  
     def set_speech_measurements(self, speech_measurement):
@@ -238,15 +243,14 @@ class BackchannelMDP:
     def _calculate_reward(self, action, initial_state, end_state):
         reward = 0.0
         
-        action_characteristics = self.action_space_mapping[:,action] #pull a column of the action space mapping
+        action_characteristics = self.action_space_mapping[:,action, None] #pull a column of the action space mapping
         
         
         
         # given changing conditions, add or subtract values from reward
         # increased valence --> good, more rewards
         
-        
-        
+        reward = initial_state.T@action_characteristics
         return reward
 
 if __name__ == "__main__":
@@ -255,7 +259,7 @@ if __name__ == "__main__":
     mdp = BackchannelMDP(example_callback)
 
     print("TESTING mdp._measurements_to_state()")
-    measurement = np.array([[0.4, -0.6, 44, 1, 70, 80, 90, 100, 110]]).T
+    measurement = np.array([[0.0, 0.5, 0.0, -45, 70, 60, 50, 40, 30]]).T
     mdp._measurements_to_state(measurement)
     print(f"Measurement:\t\t   {measurement.T}^T")
     print(f"mdp.current_state (index):    {mdp.current_state}")
