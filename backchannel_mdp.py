@@ -48,7 +48,7 @@ class BackchannelMDP:
 
         self.W = np.eye(5)
         self.W[2:, 2:] = 0
-        self.utopia = np.array([[0, 0, 0, 0, 0]]).T
+        self.utopia = np.array([[0.5, 0.5, 0, 0, 0]]).T
         
         # TODO: action_space is an array of the possible gestures and responses we can backchannel with
         self.action_space = np.array([["neutral",
@@ -57,7 +57,7 @@ class BackchannelMDP:
                                       "exclaim",
                                       "inquire",
                                       "sigh",
-                                      "lightbuilb",
+                                      "lightbulb",
                                       "affirmative_nod",
                                       "slow_nod",
                                       "curt_nod",
@@ -73,7 +73,7 @@ class BackchannelMDP:
                                               [ 1.0,  0.5,  0.5,  0.0,  1.0],    # 6 Lightbulb *
                                               [ 0.5,  0.0,  0.0,  0.0,  0.0],    # 7 Affirm_nod *
                                               [ 0.0, -0.5,  0.0,  0.0,  1.0],    # 8 Slow_nod *
-                                              [ 0.5,  0.5,  0.0,  0.0,  1.0],    # 9 Curt_nod
+                                              [ 0.5,  0.5,  -1.0,  0.0,  1.0],    # 9 Curt_nod
                                               [ 0.5,  1.0,  0.0,  0.0,  1.0],    # 10 Repetitive_nod *
                                               [-0.5, -0.5, -0.5, -1.0,  1.0]]).T # 11 Horizontal_nod *
         
@@ -118,7 +118,8 @@ class BackchannelMDP:
         #self.R = np.random.rand(self.R.shape[0], self.R.shape[1], self.R.shape[2])
         #self.R[:, :, 0] = 1
         #self.R = self.R/np.sum(self.R, 2)[:, :, None]
-        
+        np.save("transition_matrix", self.P)
+        np.save("reward_matrix", self.R)
         # random shit to make the code work
         self.callback = callback
         self.running = False
@@ -138,11 +139,9 @@ class BackchannelMDP:
 
         while self.running:
             self._measurements_to_state(self.measurements)
-            print(vi.policy)
-            print(self.current_state)
             p = vi.policy[self.current_state]
             self.callback(self.action_space[0, p])
-            self.running = False
+            time.sleep(0.05)
         # TODO: Publish optimal action
         
         

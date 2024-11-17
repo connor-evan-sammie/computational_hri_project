@@ -9,18 +9,19 @@ if __name__ == "__main__":
     duck = GestureHandler()
 
     def mdp_callback(action):
+        print(action)
         duck.addToQueue(action)
 
     mdp = BackchannelMDP(mdp_callback)
 
     def pitch_callback(pitch):
-        print(f"Pitch: {pitch}")
+        #print(f"Pitch: {pitch}")
         mdp.set_speech_measurements(pitch)
 
     def face_callback(face):
-        print(f"Face: {face.T}")
+        #print(f"Face: {face.T}")
         mdp.set_face_measurements(face)
-        
+
     pitch_detector = PitchDetector(pitch_callback)
     face_handler = FaceHandler(face_callback)
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     face_handler.start()
     mdp.start()
     duck.start()
-    time.sleep(5)
+    time.sleep(60)
     pitch_detector.stop()
     face_handler.stop()
     mdp.stop()
