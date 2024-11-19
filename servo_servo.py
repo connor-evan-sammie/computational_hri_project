@@ -6,7 +6,7 @@ from time import sleep
 # Set up the GPIO pins for the servos
 leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
 rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
-headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
+headPitch = Servo(2, min_angle = 125, max_angle = -95, min_pulse_width=0.0005, max_pulse_width=0.0024)
 headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
 
 leftWing.angle = 0
