@@ -6,10 +6,10 @@ import send_servo_positions
 
 class GestureHandler:
 
-    def __init__(self):
+    def __init__(self, gesture_completed_callback):
         self.action_queue = []
         self.running = False
-        #self.body = body()
+        self.gesture_completed_callback = gesture_completed_callback
 
     def getBackchannelGestures(self):
         return ["rand", "rand", "rand", "rand", "rand", "talk1", "talk2", "talk3", "talk4"]
@@ -34,22 +34,21 @@ class GestureHandler:
             if len(self.action_queue) == 0:
                 time.sleep(0.01)
                 continue
-            print(self.action_queue[0])
-            send_servo_positions.send_servo_positions(self.action_queue[0])
-            #action_func = getattr(gesticulator, self.action_queue[0])
-            #action_func(self.body)
+            try:
+                send_servo_positions.send_servo_positions(self.action_queue[0])
+            except:
+                print("Could not connect to duck")
+            self.gesture_completed_callback(self.action_queue[0])
             self.action_queue.pop(0)
-            #action_thread = threading.Thread(target=action_func, args=(self.body,))
-            #action_thread.daemon = True
-            #action_thread.start()
-            #action_thread.join()
 
     def stop(self):
         self.running = False
         self.t.join()
 
 if __name__ == "__main__":
-    gh = GestureHandler()
+    def gesture_completed_callback(message):
+        print(f"Completed {message}")
+    gh = GestureHandler(gesture_completed_callback)
     gh.start()
     """
     gs = ["neutral",

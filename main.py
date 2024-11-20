@@ -6,10 +6,13 @@ from gesturehandler import GestureHandler
 import time
 
 if __name__ == "__main__":
-    duck = GestureHandler()
+    def gesture_callback(gesture):
+        pass
+
+    duck = GestureHandler(gesture_callback)
 
     def mdp_callback(action):
-        print(action)
+        #print(action)
         duck.addToQueue(action)
 
     mdp = BackchannelMDP(mdp_callback)
