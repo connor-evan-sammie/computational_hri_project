@@ -57,17 +57,17 @@ class Embodiment:
         self.setHeadPitch(pose[3])
         self.send_servo_positions()
 
-    def send_servo_positions(self):
-        positions = self.getPose()
-        data = ','.join(map(str, positions))
-
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((HOST, PORT))
-                s.sendall(data.encode())
-                #print(f'Sent servo positions: {positions}')
-        except ConnectionRefusedError:
-            print("Could not connect to the duck")
+    #def send_servo_positions(self):
+    #    positions = self.getPose()
+    #    data = ','.join(map(str, positions))
+    #
+    #    try:
+    #        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    #            s.connect((HOST, PORT))
+    #            s.sendall(data.encode())
+    #            #print(f'Sent servo positions: {positions}')
+    #    except ConnectionRefusedError:
+    #        print("Could not connect to the duck")
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees

@@ -1,14 +1,15 @@
 import threading
 import time
 import gesticulator
-from embodiment import Embodiment as body
+#from embodiment import Embodiment as body
+import send_servo_positions
 
 class GestureHandler:
 
     def __init__(self):
         self.action_queue = []
         self.running = False
-        self.body = body()
+        #self.body = body()
 
     def getBackchannelGestures(self):
         return ["rand", "rand", "rand", "rand", "rand", "talk1", "talk2", "talk3", "talk4"]
@@ -33,8 +34,10 @@ class GestureHandler:
             if len(self.action_queue) == 0:
                 time.sleep(0.01)
                 continue
-            action_func = getattr(gesticulator, self.action_queue[0])
-            action_func(self.body)
+            print(self.action_queue[0])
+            send_servo_positions.send_servo_positions(self.action_queue[0])
+            #action_func = getattr(gesticulator, self.action_queue[0])
+            #action_func(self.body)
             self.action_queue.pop(0)
             #action_thread = threading.Thread(target=action_func, args=(self.body,))
             #action_thread.daemon = True
@@ -48,6 +51,7 @@ class GestureHandler:
 if __name__ == "__main__":
     gh = GestureHandler()
     gh.start()
+    """
     gs = ["neutral",
             "thinking",
             "chatty",
@@ -62,7 +66,9 @@ if __name__ == "__main__":
             "horizontal_nod"]
     for i in range(len(gs)):
         gh.addToQueue(gs[i])
-    time.sleep(60)
+    """
+    gh.addToQueue("horizontal_nod")
+    time.sleep(1)
     gh.stop()
 
 #2p 3y 14l 15r

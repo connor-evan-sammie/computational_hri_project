@@ -173,7 +173,7 @@ class BackchannelMDP:
                 return i
             elif bins[i] <= x < bins[i+1] and x > midpoint:
                 return i+1
-        return bins.shape-1
+        return bins.shape[0]-1
     
     # Takes in a series of pitches ordered chronologically and returns the concavity (-1, 0, or 1) based on a threshold limit
     def _get_inflection_idx(self, pitches):
