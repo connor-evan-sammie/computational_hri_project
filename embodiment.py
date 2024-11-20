@@ -1,6 +1,8 @@
 import os
 import platform
 import time
+from gpiozero import AngularServo as Servo
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 # send_servo_positions.py
 import socket
@@ -11,16 +13,19 @@ PORT = 65432
 
 class Embodiment:
     def __init__(self):
-        os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
-        #self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        #self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        #self.headPitch = Servo(2, min_angle = 105, max_angle = -75, min_pulse_width=0.0005, max_pulse_width=0.0024)
-        #self.headYaw = Servo(3, min_angle = 80, max_angle = -100, min_pulse_width=0.0005, max_pulse_width=0.0024)
+        #os.environ["GPIOZERO_PIN_FACTORY"] = "pigpio"
+        self.leftWing = Servo(14, min_angle= -30, max_angle= 150, min_pulse_width=0.0005, max_pulse_width=0.0024, pin_factory=PiGPIOFactory())
+        self.rightWing = Servo(15, min_angle= 150, max_angle= -30, min_pulse_width=0.0005, max_pulse_width=0.0024, pin_factory=PiGPIOFactory())
+        self.headPitch = Servo(2, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024, pin_factory=PiGPIOFactory())
+        self.headYaw = Servo(3, min_angle = 90, max_angle = -90, min_pulse_width=0.0005, max_pulse_width=0.0024, pin_factory=PiGPIOFactory())
         
         self.toNeutral()
     
     def toNeutral(self):
-        self.setPose([0, 0, 0, 0])
+        self.setLeftWing(0)
+        self.setRightWing(0)
+        self.setHeadPitch(0)
+        self.setHeadYaw(0)
 
     def setLeftWing(self, degrees):
         if degrees > 150:
@@ -28,6 +33,7 @@ class Embodiment:
         if degrees < -30:
             degrees = -30
         self.leftWingDegrees = degrees
+        self.leftWing.angle = (self.leftWingDegrees)
 
     def setRightWing(self, degrees):
         if degrees > 150:
@@ -35,6 +41,7 @@ class Embodiment:
         if degrees < -30:
             degrees = -30
         self.rightWingDegrees = degrees
+        self.rightWing.angle = (self.rightWingDegrees) 
 
     def setHeadPitch(self, degrees):
         if degrees > 40:
@@ -42,6 +49,7 @@ class Embodiment:
         if degrees < -20:
             degrees = -20
         self.headPitchDegrees = degrees
+        self.headPitch.angle = (self.headPitchDegrees)
 
     def setHeadYaw(self, degrees):
         if degrees > 80:
@@ -49,25 +57,13 @@ class Embodiment:
         if degrees < -100:
             degrees = -100
         self.headYawDegrees = degrees
+        self.headYaw.angle = (self.headYawDegrees)
 
     def setPose(self, pose):
         self.setLeftWing(pose[0])
         self.setRightWing(pose[1])
         self.setHeadYaw(pose[2])
         self.setHeadPitch(pose[3])
-        self.send_servo_positions()
-
-    def send_servo_positions(self):
-        positions = self.getPose()
-        data = ','.join(map(str, positions))
-
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((HOST, PORT))
-                s.sendall(data.encode())
-                #print(f'Sent servo positions: {positions}')
-        except ConnectionRefusedError:
-            print("Could not connect to the duck")
 
     def getLeftWing(self): return self.leftWingDegrees
     def getRightWing(self): return self.rightWingDegrees
