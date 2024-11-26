@@ -179,20 +179,22 @@ def play_wav(filepath, volume=1.0, desired_samplerate=48000, desired_channels=1)
     # Close the stream
     stream.close()
 
+vol = 1.0
+
 def mhm(body):
-    play_wav("./sounds/mhm.wav", 0.6)
+    play_wav("./sounds/mhm.wav", vol)
 
 def gotcha(body):
-    play_wav("./sounds/gotcha.wav", 0.6)
+    play_wav("./sounds/gotcha.wav", vol)
 
 def quack(body):
-    play_wav("./sounds/quack.wav", 0.6)
+    play_wav("./sounds/quack.wav", vol)
 
 def ahh(body):
-    play_wav("./sounds/ahh.wav", 0.6)
+    play_wav("./sounds/ahh.wav", vol)
 
 def hmmmmm(body):
-    play_wav("./sounds/hmmmmm.wav", 0.6)
+    play_wav("./sounds/hmmmmm.wav", vol)
 
 if __name__ == "__main__":
     mhm(None)

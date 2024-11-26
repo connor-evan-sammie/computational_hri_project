@@ -34,7 +34,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         with conn:
             print('Connected by', addr)
             while True:
-                data = conn.recv(BUFFER_SIZE)
+                try:
+                    data = conn.recv(BUFFER_SIZE)
+                except ConnectionResetError:
+                    print(f'Disconnected from {addr}')
+                    break 
                 if not data:
                     break
 
@@ -46,3 +50,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     
                 except ValueError as e:
                     print(f'Error decoding angles: {e}')
+
+                except ConnectionResetError as e:
+                    print(f'Disconnected from {addr}')
+                    break
