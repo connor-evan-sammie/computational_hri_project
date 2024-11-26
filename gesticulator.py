@@ -4,6 +4,17 @@ import scipy.interpolate
 import platform
 if platform.system() == "Windows":
     from matplotlib import pyplot as plt
+import soundfile as sf
+import numpy as np
+import pyaudio
+
+from scipy.signal import resample
+
+
+# Example usage
+#file_path = "path_to_your_file.wav"  # Replace with the path to your .wav file
+#play_wav(file_path, volume=70)  # Adjust volume as needed (0-100)
+
 
 #Left, right, yaw, pitch
 neutral_coords = np.array([0, 0, 0, 0])
@@ -102,3 +113,90 @@ def snap_neutral(body):
 
 def neutral(body, time = T):
     toSimplePose(body, neutral_coords, N=N, T=time)
+
+p = pyaudio.PyAudio()
+
+# Get the device index by name
+device_name="UACDemoV1.0: USB Audio (hw:2,0)"
+device_index = None
+for i in range(p.get_device_count()):
+    info = p.get_device_info_by_index(i)
+    if device_name and device_name in info['name']:
+        device_index = i
+        break
+
+def play_wav(filepath, volume=1.0, desired_samplerate=48000, desired_channels=1):
+    """
+    Plays a .wav file through a USB speaker with volume adjustment.
+
+    Parameters:
+    - filepath: path to the .wav file.
+    - volume: volume level (0.0 to 1.0).
+    - device_name: name or index of the audio output device.
+    - desired_samplerate: desired sampling rate for the device.
+    - desired_channels: desired number of audio channels for the device.
+    """
+    # Read the .wav file
+    data, original_samplerate = sf.read(filepath, dtype='float32')
+
+    # Adjust volume
+    data *= volume
+
+    # Resample if original sample rate is different from the desired one
+    if original_samplerate != desired_samplerate:
+        print(f"Resampling from {original_samplerate}Hz to {desired_samplerate}Hz")
+        num_samples = int(len(data) * float(desired_samplerate) / original_samplerate)
+        data = resample(data, num_samples)
+
+
+    if device_index is None:
+        raise ValueError("Specified device not found. Please check the device name.")
+
+    # Try to open the stream using desired settings
+    try:
+        stream = p.open(
+            format=pyaudio.paFloat32,
+            channels=desired_channels,
+            rate=desired_samplerate,
+            output=True,
+            output_device_index=device_index
+        )
+    except Exception as e:
+        print(f"Failed to open stream with desired settings: {e}")
+        p.terminate()
+        return
+
+    # Play the sound
+    chunk_size = 1024
+    num_chunks = (len(data) + chunk_size - 1) // chunk_size  # Calculate number of chunks
+    for start in range(num_chunks):
+        end = min(len(data), (start + 1) * chunk_size)
+        stream.write(data[start * chunk_size:end].tobytes())
+    
+    # Wait for playback to finish
+    stream.stop_stream()
+    
+    # Close the stream
+    stream.close()
+
+def mhm(body):
+    play_wav("./sounds/mhm.wav", 0.6)
+
+def gotcha(body):
+    play_wav("./sounds/gotcha.wav", 0.6)
+
+def quack(body):
+    play_wav("./sounds/quack.wav", 0.6)
+
+def ahh(body):
+    play_wav("./sounds/ahh.wav", 0.6)
+
+def hmmmmm(body):
+    play_wav("./sounds/hmmmmm.wav", 0.6)
+
+if __name__ == "__main__":
+    mhm(None)
+    ahh(None)
+    gotcha(None)
+    quack(None)
+    hmmmmm(None)
