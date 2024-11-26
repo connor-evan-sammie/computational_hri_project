@@ -31,7 +31,7 @@ class FaceHandler():
         """Begin automatic capture and emotion recognition.
         """
         if self.running is False:
-            self.cap = cv2.VideoCapture(1)
+            self.cap = cv2.VideoCapture(0)
             self.running = True
             self.running_thread = threading.Thread(None, self._run_helper)
             self.running_thread.daemon = True

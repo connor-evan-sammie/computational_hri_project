@@ -63,20 +63,28 @@ class BackchannelMDP:
                                       "slow_nod",
                                       "curt_nod",
                                       "repetitive_nod",
-                                      "horizontal_nod"]])
+                                      "horizontal_nod",
+                                      "mhm",
+                                      "ahh",
+                                      "hmmmmm",
+                                      "gotcha"]])
         
-        self.action_space_mapping = np.array([[ 0.0,  0.0,  0.0,  0.0,  0.0],    # 0 Neutrual *
-                                              [ 0.0,  0.5, -0.5,  1.0,  1.0],    # 1 Thinking *
-                                              [ 0.5,  0.5,  0.5,  0.0,  1.0],    # 2 Chatty
-                                              [ 0.5,  1.0,  1.0,  0.0,  1.0],    # 3 Exclaim *
-                                              [ 0.0,  0.5,  0.5,  0.0,  1.0],    # 4 Inquire
-                                              [-1.0,  0.5, -1.0,  0.0, -1.0],    # 5 Sad *
-                                              [ 1.0,  0.5,  0.5,  0.0,  1.0],    # 6 Lightbulb *
-                                              [ 0.5,  0.0,  0.0,  0.0,  0.0],    # 7 Affirm_nod *
-                                              [ 0.0, -0.5,  0.0,  0.0,  1.0],    # 8 Slow_nod *
-                                              [ 0.5,  0.5,  -1.0,  0.0,  1.0],    # 9 Curt_nod
-                                              [ 0.5,  1.0,  0.0,  0.0,  1.0],    # 10 Repetitive_nod *
-                                              [-0.5, -0.5, -0.5, -1.0,  1.0]]).T # 11 Horizontal_nod *
+        self.action_space_mapping = np.array([[ 0.0,  0.0,  0.0,  0.0,  0.0],   # 0 Neutrual *
+                                              [ 0.0,  0.5, -0.5,  1.0,  1.0],   # 1 Thinking *
+                                              [ 0.5,  0.5,  0.5,  0.0,  1.0],   # 2 Chatty
+                                              [ 0.5,  1.0,  1.0,  0.0,  1.0],   # 3 Exclaim *
+                                              [ 0.0,  0.5,  0.5,  0.0,  1.0],   # 4 Inquire
+                                              [-1.0,  0.5, -1.0,  0.0, -1.0],   # 5 Sad *
+                                              [ 1.0,  0.5,  0.5,  0.0,  1.0],   # 6 Lightbulb *
+                                              [ 0.5,  0.0,  0.0,  0.0,  0.0],   # 7 Affirm_nod *
+                                              [ 0.0, -0.5,  0.0,  0.0,  1.0],   # 8 Slow_nod *
+                                              [ 0.5,  0.5,  -1.0,  0.0,  1.0],  # 9 Curt_nod
+                                              [ 0.5,  1.0,  0.0,  0.0,  1.0],   # 10 Repetitive_nod *
+                                              [-0.5, -0.5, -0.5, -1.0,  1.0],   # 11 Horizontal_nod *
+                                              [0.0, 0.0, 0.0, 0.0,  1.0],   # 12 mhm
+                                              [0.0, -0.5, 0.0, 0.0,  1.0],   # 13 ahh
+                                              [-0.5, -0.5, 0.0, 0.0,  -1.0],   # 14 hmmmmm
+                                              [0.5, 0.5, 0.5, 0.0,  -1.0]]).T# 15 gotcha
         
         
         # current_state represents the column index of the current state in the context of state_space
@@ -133,6 +141,7 @@ class BackchannelMDP:
 
         while self.running:
             self._measurements_to_state(self.measurements)
+            print(f"Current state: {self.state_space[:, self.current_state]}")
             p = vi.policy[self.current_state]
             self.callback(self.action_space[0, p])
             time.sleep(2)
@@ -160,7 +169,11 @@ class BackchannelMDP:
     
     # takes in speech measurements and applies them to self.measurements  
     def set_speech_measurements(self, speech_measurement):
-        self.measurements[3:7] = self.measurements[4:8]
+        self.measurements[3] = self.measurements[4]
+        self.measurements[4] = self.measurements[5]
+        self.measurements[5] = self.measurements[6]
+        self.measurements[6] = self.measurements[7]
+        self.measurements[7] = self.measurements[8]
         self.measurements[8] = speech_measurement
         
     # given a set of possible bins, place x into the nearest bin and return that bin's index
@@ -177,11 +190,13 @@ class BackchannelMDP:
     
     # Takes in a series of pitches ordered chronologically and returns the concavity (-1, 0, or 1) based on a threshold limit
     def _get_inflection_idx(self, pitches):
+        print(f"Pitches: {pitches}")
         xs = np.arange(0, pitches.shape[0])
         fit = np.polyfit(xs, pitches, 2)
         quadratic_term = fit[0]
         linear_term = fit[1]
-        concavity_limit = 0.1
+        concavity_limit = 30
+        print(f"Fits: {fit}")
         
         # If the fit is nearly linear, follow the linear slope instead
         if abs(quadratic_term) < 0.01:
@@ -199,8 +214,8 @@ class BackchannelMDP:
     # find closest state to given mesurements and then set current state to this index using self.state_space
     def _measurements_to_state(self, measurement):
 
-        val_idx = self._quantize(measurement[0], self.val_states)
-        aro_idx = self._quantize(measurement[1], self.aro_states)
+        val_idx = self._quantize(measurement[0], self.val_states/1.25)
+        aro_idx = self._quantize(measurement[1], self.aro_states/1.25)
         pit_idx = self._quantize(measurement[2], self.pit_states)
         yaw_idx = self._quantize(measurement[3], self.yaw_states)
         ifl_idx = self._get_inflection_idx(measurement[4:])
@@ -243,7 +258,7 @@ class BackchannelMDP:
         # given changing conditions, add or subtract values from reward
         # increased valence --> good, more rewards
         
-        reward = initial_state.T@action_characteristics
+        reward = initial_state.T@action_characteristics - abs(initial_state[-1])
         return reward
 
 if __name__ == "__main__":
