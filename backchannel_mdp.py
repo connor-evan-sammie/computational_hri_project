@@ -237,7 +237,7 @@ class BackchannelMDP:
         
         #probability += 1.0/state_transition_magnitude
         
-        temp1 = initial_state+np.inner(initial_state, action_characteristics)*self.utopia
+        temp1 = initial_state + np.inner(initial_state, action_characteristics)*self.utopia
         probability = end_state[0, 0]*temp1[0, 0]+end_state[1, 0]*temp1[1, 0]
         #probability = end_state.T@self.W@(initial_state+(initial_state.T@action_characteristics)*self.utopia)
         
@@ -253,13 +253,42 @@ class BackchannelMDP:
         
         action_characteristics = self.action_space_mapping[:,action, None] #pull a column of the action space mapping
         
+        # -------------- New Content ------------------------
         
+        # coefficients to tune
+        k_straightness = 5.000
+        k_stdev = 1.000
+        k_utopia = 3.000
+        k_neutrality = 5.000
+        
+        
+        # calculate the directionality of state and action transition
+        delta_S = np.subtract(end_state, initial_state)
+        delta_A = np.subtract(end_state, action_characteristics)
+        
+        # use inner product to define how closely the state and action align in their mappings to the new state
+        straightness = k_straightness * np.inner(delta_S, delta_A)
+        
+        
+        # add some randomness to the measure
+        randomness = np.random.normal(0.0, k_stdev)
+        
+        # if action is neutral emotionally, favor it
+        if((np.abs(action_characteristics[0]) + np.abs(action_characteristics[1])) < 0.50):
+            neutrality = k_neutrality
+        else:
+            neutrality = 0
         
         # given changing conditions, add or subtract values from reward
         # increased valence --> good, more rewards
         
-        reward = initial_state.T@action_characteristics - abs(initial_state[-1])
+        favorability = k_utopia * initial_state.T@action_characteristics - abs(initial_state[-1])
+
+        
+        reward = straightness + neutrality + randomness + favorability
         return reward
+        
+        
 
 if __name__ == "__main__":
     def example_callback(action):
