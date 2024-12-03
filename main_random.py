@@ -19,8 +19,7 @@ if __name__ == "__main__":
                                       "horizontal_nod",
                                       "mhm",
                                       "ahh",
-                                      "hmmmmm",
-                                      "gotcha"]
+                                      "hmmmmm"]
     while True:
         time.sleep(2)
         duck.addToQueue(action_space[randrange(len(action_space))])

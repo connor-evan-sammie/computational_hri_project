@@ -66,8 +66,7 @@ class BackchannelMDP:
                                       "horizontal_nod",
                                       "mhm",
                                       "ahh",
-                                      "hmmmmm",
-                                      "gotcha"]])
+                                      "hmmmmm"]])
         
         self.action_space_mapping = np.array([[ 0.0,  0.0,  0.0,  0.0,  0.0],   # 0 Neutrual *
                                               [ 0.0,  0.5, -0.5,  1.0,  1.0],   # 1 Thinking *
@@ -83,8 +82,7 @@ class BackchannelMDP:
                                               [-0.5, -0.5, -0.5, -1.0,  1.0],   # 11 Horizontal_nod *
                                               [0.0, 0.0, 0.0, 0.0,  1.0],   # 12 mhm
                                               [0.0, -0.5, 0.0, 0.0,  1.0],   # 13 ahh
-                                              [-0.5, -0.5, 0.0, 0.0,  -1.0],   # 14 hmmmmm
-                                              [0.5, 0.5, 0.5, 0.0,  -1.0]]).T# 15 gotcha
+                                              [-0.5, -0.5, 0.0, 0.0,  -1.0]]).T# 15 hmmmmm?
         
         
         # current_state represents the column index of the current state in the context of state_space
