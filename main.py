@@ -12,7 +12,7 @@ if __name__ == "__main__":
     duck = GestureHandler(gesture_callback)
 
     def mdp_callback(action):
-        #print(action)
+        print(action)
         duck.addToQueue(action)
 
     mdp = BackchannelMDP(mdp_callback)
@@ -30,13 +30,11 @@ if __name__ == "__main__":
 
     pitch_detector.start()
     face_handler.start()
-    mdp.start()
     duck.start()
 
     input()
 
     pitch_detector.stop()
     face_handler.stop()
-    mdp.stop()
     duck.stop()
 

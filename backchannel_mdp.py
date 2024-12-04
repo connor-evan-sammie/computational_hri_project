@@ -6,7 +6,6 @@ import signal
 import sys
 from matplotlib import pyplot as plt
 import os.path
-from queue import Queue
 
 import numpy as np
 import mdptoolbox as mdp_tb
@@ -28,7 +27,13 @@ class BackchannelMDP:
         #           
         # =============================================
         self.measurements = np.zeros((9,1))
+        self.pitch_queue = []
+        self.max_pitch_queue_length = 200
         
+        self.last_silence = time.time()
+        self.last_backchannel = time.time()
+        self.last_percentile_26 = time.time()
+        self.last_satisfied = sys.float_info.max
         
         # ========= State Vector Syntax =================
         # 
@@ -126,42 +131,19 @@ class BackchannelMDP:
             np.save("reward_matrix", self.R)
         # random shit to make the code work
         self.callback = callback
-        self.running = False
-        
-    def _run_helper(self):
-        
-        # take in measurements and convert to state
-        #self._measurements_to_state(self.measurements)
-        
+
         # Apply MDP to return optimal policy
-        vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9, epsilon=0.1)
-        vi.setVerbose()
-        vi.run()
+        self.vi = mdp_tb.mdp.ValueIteration(self.P, self.R, 0.9, epsilon=0.1)
+        self.vi.setVerbose()
+        self.vi.run()
 
         # Apply optimal policy to current state to obtain optimal action
-        self.optimal_action = vi.policy[self.current_state]
-
-        while self.running:
-            self._measurements_to_state(self.measurements)
-            print(f"Current state: {self.state_space[:, self.current_state]}")
-            p = vi.policy[self.current_state]
-            print(f"Action taken: {self.action_space[0, p]}")
-            self.callback(self.action_space[0, p])
-            time.sleep(2)
-        # TODO: Publish optimal action
+        self.optimal_action = self.vi.policy[self.current_state]
         
-        
-    def start(self):
-        if self.running is False:
-            self.running = True
-            self.running_thread = threading.Thread(None, self._run_helper)
-            self.running_thread.daemon = True
-            self.running_thread.start()
-    
-    def stop(self):
-        self.running = False
-        self.running_thread.join()
-        
+    def _backchannel(self):
+        self._measurements_to_state(self.measurements)
+        p = self.vi.policy[self.current_state]
+        self.callback(self.action_space[0, p])        
         
     # takes in face measurements and applies them to self.measurements    
     def set_face_measurements(self, face_measurements):
@@ -171,13 +153,41 @@ class BackchannelMDP:
         self.measurements[3] = face_measurements[3]/30.0
     
     # takes in speech measurements and applies them to self.measurements  
-    def set_speech_measurements(self, speech_measurement):
+    def set_speech_measurements(self, pitch):
         self.measurements[3] = self.measurements[4]
         self.measurements[4] = self.measurements[5]
         self.measurements[5] = self.measurements[6]
         self.measurements[6] = self.measurements[7]
         self.measurements[7] = self.measurements[8]
-        self.measurements[8] = speech_measurement
+        self.measurements[8] = pitch
+
+        if pitch > 0.01:
+            self.pitch_queue.append(pitch)
+            print(len(self.pitch_queue))
+            if len(self.pitch_queue) > self.max_pitch_queue_length:
+                self.pitch_queue.pop(0)
+        if pitch < 0.01:
+            self.last_silence = time.time()
+        if len(self.pitch_queue) > 2:
+            percentile_26 = np.percentile(self.pitch_queue, 26)
+        else:
+            percentile_26 = -1
+        if pitch > percentile_26:
+            self.last_percentile_26 = time.time()
+        P1_P2 = time.time() - self.last_percentile_26 >= 0.110
+        P3 = time.time() - self.last_silence >= 0.700
+        P4 = time.time() - self.last_backchannel >= 0.800
+        if(P1_P2 and P3 and P4):
+            self.last_satisfied = time.time()
+        P5 = time.time() - self.last_satisfied - 0.700 > 0
+        if P5:
+            self.last_satisfied = sys.float_info.max
+            self.last_backchannel = time.time()
+
+            #ITS TIME TO BACKCHANNEL
+            self._measurements_to_state(self.measurements)
+            p = self.vi.policy[self.current_state]
+            self.callback(self.action_space[0, p])
         
     # given a set of possible bins, place x into the nearest bin and return that bin's index
     def _quantize(self, x, bins):
@@ -301,8 +311,3 @@ if __name__ == "__main__":
     print(f"Measurement:\t\t   {measurement.T}^T")
     print(f"mdp.current_state (index):    {mdp.current_state}")
     print(f"State:\t\t\t    {mdp.state_space[:, mdp.current_state]}")
-
-    # This test will apply once the MDP has been implemented further
-    mdp.start()
-    time.sleep(90)
-    mdp.stop()
