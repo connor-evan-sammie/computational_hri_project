@@ -6,6 +6,7 @@ import signal
 import sys
 from matplotlib import pyplot as plt
 import os.path
+from queue import Queue
 
 import numpy as np
 import mdptoolbox as mdp_tb
@@ -27,6 +28,7 @@ class BackchannelMDP:
         #           
         # =============================================
         self.measurements = np.zeros((9,1))
+        
         
         # ========= State Vector Syntax =================
         # 
@@ -143,6 +145,7 @@ class BackchannelMDP:
             self._measurements_to_state(self.measurements)
             print(f"Current state: {self.state_space[:, self.current_state]}")
             p = vi.policy[self.current_state]
+            print(f"Action taken: {self.action_space[0, p]}")
             self.callback(self.action_space[0, p])
             time.sleep(2)
         # TODO: Publish optimal action
@@ -190,13 +193,11 @@ class BackchannelMDP:
     
     # Takes in a series of pitches ordered chronologically and returns the concavity (-1, 0, or 1) based on a threshold limit
     def _get_inflection_idx(self, pitches):
-        print(f"Pitches: {pitches}")
         xs = np.arange(0, pitches.shape[0])
         fit = np.polyfit(xs, pitches, 2)
         quadratic_term = fit[0]
         linear_term = fit[1]
         concavity_limit = 30
-        print(f"Fits: {fit}")
         
         # If the fit is nearly linear, follow the linear slope instead
         if abs(quadratic_term) < 0.01:
@@ -267,7 +268,7 @@ class BackchannelMDP:
         delta_A = np.subtract(end_state, action_characteristics)
         
         # use inner product to define how closely the state and action align in their mappings to the new state
-        straightness = k_straightness * np.inner(delta_S, delta_A)
+        straightness = k_straightness * delta_S.T@delta_A
         
         
         # add some randomness to the measure
@@ -284,7 +285,6 @@ class BackchannelMDP:
         
         favorability = k_utopia * initial_state.T@action_characteristics - abs(initial_state[-1])
 
-        
         reward = straightness + neutrality + randomness + favorability
         return reward
         
